@@ -158,3 +158,70 @@ func Test_bandToStruct(t *testing.T) {
 		})
 	}
 }
+
+func Test_applyMemberSliceToStruct(t *testing.T) {
+	type args struct {
+		record []string
+	}
+	tests := []struct {
+		name    string
+		args    args
+		want    memberCSVFormat
+		wantErr bool
+	}{
+		// TODO: Add test cases.
+	}
+	for _, tt := range tests {
+		t.Run(tt.name, func(t *testing.T) {
+			got, err := applyMemberSliceToStruct(tt.args.record)
+			if (err != nil) != tt.wantErr {
+				t.Errorf("applyMemberSliceToStruct() error = %v, wantErr %v", err, tt.wantErr)
+				return
+			}
+			if !reflect.DeepEqual(got, tt.want) {
+				t.Errorf("applyMemberSliceToStruct() = %v, want %v", got, tt.want)
+			}
+		})
+	}
+}
+
+func TestImportMember(t *testing.T) {
+	want := map[int]model.Member{
+		1: {ID: 1, Name: "taisho"},
+		2: {ID: 2, Name: "haruki"},
+		3: {ID: 3, Name: "katsuya"},
+		4: {ID: 4, Name: "hinako"},
+		5: {ID: 5, Name: "rino"},
+		6: {ID: 6, Name: "miran"},
+	}
+
+	type args struct {
+		fileName string
+	}
+	tests := []struct {
+		name    string
+		args    args
+		want    map[int]model.Member
+		wantErr bool
+	}{
+		{
+			name: "OK",
+			args: args{
+				fileName: "../csv/test/member.csv",
+			},
+			want: want,
+		},
+	}
+	for _, tt := range tests {
+		t.Run(tt.name, func(t *testing.T) {
+			got, err := ImportMember(tt.args.fileName)
+			if (err != nil) != tt.wantErr {
+				t.Errorf("ImportMember() error = %v, wantErr %v", err, tt.wantErr)
+				return
+			}
+			if !reflect.DeepEqual(got, tt.want) {
+				t.Errorf("ImportMember() = %v, want %v", got, tt.want)
+			}
+		})
+	}
+}

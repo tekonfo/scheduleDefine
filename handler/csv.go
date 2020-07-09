@@ -3,6 +3,7 @@ package handler
 import (
 	"FestivalSchedule/model"
 	"encoding/csv"
+	"errors"
 	"fmt"
 	"io"
 	"log"
@@ -24,12 +25,33 @@ type bandCSVFormat struct {
 	bandTypeID int
 }
 
+type memberCSVFormat struct {
+	ID   int
+	name string
+}
+
 func fileExists(filename string) bool {
 	info, err := os.Stat(filename)
 	if os.IsNotExist(err) {
 		return false
 	}
 	return !info.IsDir()
+}
+
+func applyMemberSliceToStruct(record []string) (memberCSVFormat, error) {
+	var memberStruct memberCSVFormat
+	memberStruct.name = record[0]
+	if record[1] == "" {
+		return memberStruct, errors.New("idが入力されていません")
+	}
+
+	id, err := strconv.Atoi(record[1])
+	if err != nil {
+		return memberStruct, err
+	}
+	memberStruct.ID = id
+
+	return memberStruct, nil
 }
 
 // 情報がないmemberXは0になる
@@ -208,4 +230,48 @@ func ImportBand(fileName string, members map[int]model.Member, locations map[int
 	}
 
 	return bands, nil
+}
+
+// ImportMember is to import members from csv
+func ImportMember(fileName string) (map[int]model.Member, error) {
+	var members map[int]model.Member
+	members = make(map[int]model.Member)
+
+	if !fileExists(fileName) {
+		return members, fmt.Errorf("存在しないfileNameです")
+	}
+
+	file, err := os.Open(fileName)
+	if err != nil {
+		return members, err
+	}
+
+	csvReader := csv.NewReader(file)
+	csvReader.Read()
+	for {
+		record, err := csvReader.Read()
+		if err == io.EOF {
+			break
+		}
+
+		if err != nil && err != io.EOF {
+			log.Println(err)
+			return members, err
+		}
+
+		memberStruct, err := applyMemberSliceToStruct(record)
+		if err != nil {
+			log.Println(err)
+			return members, err
+		}
+
+		member := model.Member{
+			ID:   memberStruct.ID,
+			Name: memberStruct.name,
+		}
+
+		members[member.ID] = member
+	}
+
+	return members, nil
 }
