@@ -4,6 +4,7 @@ import (
 	"FestivalSchedule/model"
 	"reflect"
 	"testing"
+	"time"
 )
 
 func Test_applyBandSliceToStruct(t *testing.T) {
@@ -221,6 +222,61 @@ func TestImportMember(t *testing.T) {
 			}
 			if !reflect.DeepEqual(got, tt.want) {
 				t.Errorf("ImportMember() = %v, want %v", got, tt.want)
+			}
+		})
+	}
+}
+
+func TestImportSchedule(t *testing.T) {
+	const scheduleCSV = "../csv/test/schedule.csv"
+
+	want := []model.Schedule{
+		{
+			time.Date(2020, 5, 20, 0, 0, 0, 0, time.UTC),
+			time.Date(2020, 5, 20, 10, 0, 0, 0, time.UTC),
+			time.Date(2020, 5, 20, 18, 0, 0, 0, time.UTC),
+			nil,
+		},
+		{
+			time.Date(2020, 5, 21, 0, 0, 0, 0, time.UTC),
+			time.Date(2020, 5, 21, 10, 0, 0, 0, time.UTC),
+			time.Date(2020, 5, 21, 18, 0, 0, 0, time.UTC),
+			nil,
+		},
+		{
+			time.Date(2020, 5, 22, 0, 0, 0, 0, time.UTC),
+			time.Date(2020, 5, 22, 10, 0, 0, 0, time.UTC),
+			time.Date(2020, 5, 22, 18, 0, 0, 0, time.UTC),
+			nil,
+		},
+	}
+
+	type args struct {
+		fileName string
+	}
+	tests := []struct {
+		name    string
+		args    args
+		want    []model.Schedule
+		wantErr bool
+	}{
+		{
+			name: "OK",
+			args: args{
+				fileName: scheduleCSV,
+			},
+			want: want,
+		},
+	}
+	for _, tt := range tests {
+		t.Run(tt.name, func(t *testing.T) {
+			got, err := ImportSchedule(tt.args.fileName)
+			if (err != nil) != tt.wantErr {
+				t.Errorf("ImportSchedule() error = %v, wantErr %v", err, tt.wantErr)
+				return
+			}
+			if !reflect.DeepEqual(got, tt.want) {
+				t.Errorf("ImportSchedule() = %v, want %v", got, tt.want)
 			}
 		})
 	}

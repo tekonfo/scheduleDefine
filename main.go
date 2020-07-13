@@ -22,7 +22,7 @@ func main() {
 
 	bands, err := handler.ImportBand(bandCSV, members, locations)
 	if err != nil {
-		fmt.Println(err)
+		log.Fatal(err)
 	}
 
 	fmt.Println(bands)

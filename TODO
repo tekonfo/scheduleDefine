@@ -1,3 +1,25 @@
 
-Todo:
-  ☐ ImportMember完成させる
+CSV Import:
+  ✔ ImportBand @done(20-07-13 09:29)
+  ✔ ImportMember @done(20-07-10 08:30)
+  ☐ ImportSchedule
+  ☐ ImportImpossibleTime
+
+システムの実装:
+  ☐ 要件の確認
+  ☐ アルゴリズムの調査
+  ☐ システムフロー設計
+  Todo:
+    ☐ シーケンス図 or フローチャート作成
+    ☐ アーキテクチャ決定
+    ☐ 作成する関数決定
+  ☐ 実装
+  ☐ 入力テスト
+
+CSV Output:
+  ☐ フォーマットの決定
+  ☐ 実装
+  ☐ テスト
+
+システムの統合テスト:
+  ☐ 統合テスト記述

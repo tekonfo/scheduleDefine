@@ -9,6 +9,12 @@ import (
 	"log"
 	"os"
 	"strconv"
+	"time"
+)
+
+const (
+	dateFormat = "2006-Jan-02"
+	timeFormat = "3:04"
 )
 
 type bandCSVFormat struct {
@@ -28,6 +34,12 @@ type bandCSVFormat struct {
 type memberCSVFormat struct {
 	ID   int
 	name string
+}
+
+type scheduleCSVFormat struct {
+	date  time.Time
+	start time.Time
+	end   time.Time
 }
 
 func fileExists(filename string) bool {
@@ -146,6 +158,36 @@ func applyBandSliceToStruct(record []string) (bandCSVFormat, error) {
 	bandStruct.bandTypeID = bandTypeID
 
 	return bandStruct, nil
+}
+
+func applyScheduleSliceToStruct(record []string) (scheduleCSVFormat, error) {
+	scheduleStruct := scheduleCSVFormat{}
+
+	date, err := time.Parse(dateFormat, record[0])
+	if err != nil {
+		log.Print(err)
+		return scheduleStruct, err
+	}
+
+	scheduleStruct.date = date
+
+	start, err := time.Parse(timeFormat, record[1])
+	if err != nil {
+		log.Print(err)
+		return scheduleStruct, err
+	}
+
+	scheduleStruct.start = start
+
+	end, err := time.Parse(timeFormat, record[1])
+	if err != nil {
+		log.Print(err)
+		return scheduleStruct, err
+	}
+
+	scheduleStruct.end = end
+
+	return scheduleStruct, nil
 }
 
 func bandToStruct(bandStruct bandCSVFormat, members map[int]model.Member, locations map[int]model.Location) (band model.Band, err error) {
@@ -274,4 +316,48 @@ func ImportMember(fileName string) (map[int]model.Member, error) {
 	}
 
 	return members, nil
+}
+
+// ImportSchedule is to import schedule from csv
+func ImportSchedule(fileName string) ([]model.Schedule, error) {
+	schedules := []model.Schedule{}
+
+	if !fileExists(fileName) {
+		return schedules, fmt.Errorf("存在しないfileNameです")
+	}
+
+	file, err := os.Open(fileName)
+	if err != nil {
+		return schedules, err
+	}
+
+	csvReader := csv.NewReader(file)
+	csvReader.Read()
+	for {
+		record, err := csvReader.Read()
+		if err == io.EOF {
+			break
+		}
+
+		if err != nil && err != io.EOF {
+			log.Println(err)
+			return schedules, err
+		}
+
+		scheduleStruct, err := applyScheduleSliceToStruct(record)
+		if err != nil {
+			log.Println(err)
+			return schedules, err
+		}
+
+		schedule := model.Schedule{
+			Day:   scheduleStruct.date,
+			Start: scheduleStruct.start,
+			End:   scheduleStruct.end,
+		}
+
+		schedules = append(schedules, schedule)
+	}
+
+	return schedules, nil
 }
