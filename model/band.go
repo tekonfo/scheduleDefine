@@ -10,6 +10,8 @@ const TMPBAND = 2
 const OBBAND = 3
 
 type Band struct {
+	ID              int
+	Name            string
 	Members         []Member
 	ImpossibleTimes []ImpossibleTime
 	// 希望出演場所
@@ -19,9 +21,9 @@ type Band struct {
 }
 
 type ImpossibleTime struct {
-	day   time.Time
-	start time.Time
-	end   time.Time
+	Date  time.Time
+	Start time.Time
+	End   time.Time
 }
 
 // バンドの種類は、本バンド、企画バンド、OBバンドの三種類が存在する
@@ -45,4 +47,16 @@ func SetBandType(num int) (bandType, error) {
 	}
 
 	return bandTp, nil
+}
+
+// FindBandFromID is function to find band which has the args's ID
+func FindBandFromID(ID int, bands []Band) (Band, error) {
+
+	for _, band := range bands {
+		if band.ID == ID {
+			return band, nil
+		}
+	}
+
+	return Band{}, errors.New("no band which has such ID")
 }

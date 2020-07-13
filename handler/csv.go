@@ -42,6 +42,13 @@ type scheduleCSVFormat struct {
 	end   time.Time
 }
 
+type impossibleCSVFormat struct {
+	groupID int
+	date    time.Time
+	start   time.Time
+	end     time.Time
+}
+
 func fileExists(filename string) bool {
 	info, err := os.Stat(filename)
 	if os.IsNotExist(err) {
@@ -64,6 +71,11 @@ func applyMemberSliceToStruct(record []string) (memberCSVFormat, error) {
 	memberStruct.ID = id
 
 	return memberStruct, nil
+}
+
+func applyImpossibleTimeSliceToStruct(record []string) (impossibleCSVFormat, error) {
+	var impossibleStruct impossibleCSVFormat
+	return impossibleStruct, nil
 }
 
 // 情報がないmemberXは0になる
@@ -358,4 +370,52 @@ func ImportSchedule(fileName string) ([]model.Schedule, error) {
 	}
 
 	return schedules, nil
+}
+
+// ImportImpossibleTime is to import impossibleTime from csv
+func ImportImpossibleTime(fileName string, bands []model.Band, schedules []model.Schedule) ([]model.Band, error) {
+	if !fileExists(fileName) {
+		return bands, fmt.Errorf("存在しないfileNameです")
+	}
+
+	file, err := os.Open(fileName)
+	if err != nil {
+		return bands, err
+	}
+
+	csvReader := csv.NewReader(file)
+	csvReader.Read()
+	for {
+		record, err := csvReader.Read()
+		if err == io.EOF {
+			break
+		}
+
+		if err != nil && err != io.EOF {
+			log.Println(err)
+			return bands, err
+		}
+
+		impossibleTimeStruct, err := applyImpossibleTimeSliceToStruct(record)
+		if err != nil {
+			log.Println(err)
+			return bands, err
+		}
+
+		impossibleTime := model.ImpossibleTime{
+			Date:  impossibleTimeStruct.date,
+			Start: impossibleTimeStruct.start,
+			End:   impossibleTimeStruct.end,
+		}
+
+		targetBand, err := model.FindBandFromID(impossibleTimeStruct.groupID, bands)
+		if err != nil {
+			log.Println(err)
+			return bands, err
+		}
+
+		targetBand.ImpossibleTimes = append(targetBand.ImpossibleTimes, impossibleTime)
+	}
+
+	return bands, nil
 }

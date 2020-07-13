@@ -139,6 +139,7 @@ func Test_bandToStruct(t *testing.T) {
 				locations:  locations,
 			},
 			wantBand: model.Band{
+				ID:               1,
 				Members:          bandMember,
 				BandType:         bandType,
 				IsMultiPlay:      false,
