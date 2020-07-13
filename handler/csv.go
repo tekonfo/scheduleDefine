@@ -13,7 +13,7 @@ import (
 )
 
 const (
-	dateFormat = "2006-Jan-02"
+	dateFormat = "2006-01-02"
 	timeFormat = "3:04"
 )
 
@@ -171,21 +171,19 @@ func applyScheduleSliceToStruct(record []string) (scheduleCSVFormat, error) {
 
 	scheduleStruct.date = date
 
-	start, err := time.Parse(timeFormat, record[1])
+	startDuration, err := time.ParseDuration(record[1])
 	if err != nil {
 		log.Print(err)
 		return scheduleStruct, err
 	}
+	scheduleStruct.start = date.Add(startDuration)
 
-	scheduleStruct.start = start
-
-	end, err := time.Parse(timeFormat, record[1])
+	endDuration, err := time.ParseDuration(record[2])
 	if err != nil {
 		log.Print(err)
 		return scheduleStruct, err
 	}
-
-	scheduleStruct.end = end
+	scheduleStruct.end = date.Add(endDuration)
 
 	return scheduleStruct, nil
 }
