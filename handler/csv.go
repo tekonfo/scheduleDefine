@@ -75,6 +75,37 @@ func applyMemberSliceToStruct(record []string) (memberCSVFormat, error) {
 
 func applyImpossibleTimeSliceToStruct(record []string) (impossibleCSVFormat, error) {
 	var impossibleStruct impossibleCSVFormat
+
+	groupID, err := strconv.Atoi(record[0])
+	if err != nil {
+		log.Print(err)
+		return impossibleStruct, err
+	}
+
+	impossibleStruct.groupID = groupID
+
+	date, err := time.Parse(dateFormat, record[1])
+	if err != nil {
+		log.Print(err)
+		return impossibleStruct, err
+	}
+
+	impossibleStruct.date = date
+
+	startDuration, err := time.ParseDuration(record[2])
+	if err != nil {
+		log.Print(err)
+		return impossibleStruct, err
+	}
+	impossibleStruct.start = date.Add(startDuration)
+
+	endDuration, err := time.ParseDuration(record[3])
+	if err != nil {
+		log.Print(err)
+		return impossibleStruct, err
+	}
+	impossibleStruct.end = date.Add(endDuration)
+
 	return impossibleStruct, nil
 }
 

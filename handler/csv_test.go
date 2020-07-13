@@ -282,3 +282,44 @@ func TestImportSchedule(t *testing.T) {
 		})
 	}
 }
+
+func Test_applyImpossibleTimeSliceToStruct(t *testing.T) {
+	record := []string{"1", "2020-05-22", "10h00m", "13h00m"}
+
+	want := impossibleCSVFormat{
+		groupID: 1,
+		date:    time.Date(2020, 5, 22, 0, 0, 0, 0, time.UTC),
+		start:   time.Date(2020, 5, 22, 10, 0, 0, 0, time.UTC),
+		end:     time.Date(2020, 5, 22, 13, 0, 0, 0, time.UTC),
+	}
+
+	type args struct {
+		record []string
+	}
+	tests := []struct {
+		name    string
+		args    args
+		want    impossibleCSVFormat
+		wantErr bool
+	}{
+		{
+			name: "OK",
+			args: args{
+				record: record,
+			},
+			want: want,
+		},
+	}
+	for _, tt := range tests {
+		t.Run(tt.name, func(t *testing.T) {
+			got, err := applyImpossibleTimeSliceToStruct(tt.args.record)
+			if (err != nil) != tt.wantErr {
+				t.Errorf("applyImpossibleTimeSliceToStruct() error = %v, wantErr %v", err, tt.wantErr)
+				return
+			}
+			if !reflect.DeepEqual(got, tt.want) {
+				t.Errorf("applyImpossibleTimeSliceToStruct() = %v, want %v", got, tt.want)
+			}
+		})
+	}
+}

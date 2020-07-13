@@ -19,8 +19,8 @@ func TestMember_CheckDoubleCheck(t *testing.T) {
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
 			member := Member{
-				name:  tt.fields.name,
-				bands: tt.fields.bands,
+				Name:  tt.fields.name,
+				Bands: tt.fields.bands,
 			}
 			if got := member.CheckDoubleCheck(); got != tt.want {
 				t.Errorf("Member.CheckDoubleCheck() = %v, want %v", got, tt.want)
@@ -31,12 +31,12 @@ func TestMember_CheckDoubleCheck(t *testing.T) {
 
 func TestCheckValidMembers(t *testing.T) {
 	memberA := Member{
-		id:   1,
-		name: "hoge",
+		ID:   1,
+		Name: "hoge",
 	}
 	memberB := Member{
-		id:   2,
-		name: "taro",
+		ID:   2,
+		Name: "taro",
 	}
 	members := map[int]Member{
 		1: memberA,
