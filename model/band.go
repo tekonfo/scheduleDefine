@@ -50,6 +50,7 @@ func SetBandType(num int) (bandType, error) {
 }
 
 // AddImpossibleTimeFromID is function to add impossible time to band which has the args's ID
+// TODO:　値をコピーしまくって最適でない。ポインタを使う
 func AddImpossibleTimeFromID(ID int, bands []Band, impossibleTime ImpossibleTime) ([]Band, error) {
 
 	for i, band := range bands {
