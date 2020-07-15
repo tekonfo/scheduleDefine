@@ -18,6 +18,7 @@ const (
 )
 
 type bandCSVFormat struct {
+	id         int
 	name       string
 	memberNum  int
 	member1ID  int
@@ -113,9 +114,18 @@ func applyImpossibleTimeSliceToStruct(record []string) (impossibleCSVFormat, err
 func applyBandSliceToStruct(record []string) (bandCSVFormat, error) {
 	var bandStruct bandCSVFormat
 	var memberNum int
-	bandStruct.name = record[0]
-	if record[1] != "" {
-		member1, err := strconv.Atoi(record[1])
+
+	id, err := strconv.Atoi(record[0])
+	if err != nil {
+		log.Fatal(err)
+		return bandStruct, err
+	}
+	bandStruct.id = id
+
+	bandStruct.name = record[1]
+
+	if record[2] != "" {
+		member1, err := strconv.Atoi(record[2])
 		if err != nil {
 			log.Fatal(err)
 			return bandStruct, err
@@ -124,8 +134,8 @@ func applyBandSliceToStruct(record []string) (bandCSVFormat, error) {
 		memberNum++
 	}
 
-	if record[2] != "" {
-		member2, err := strconv.Atoi(record[2])
+	if record[3] != "" {
+		member2, err := strconv.Atoi(record[3])
 		if err != nil {
 			log.Fatal(err)
 			return bandStruct, err
@@ -134,8 +144,8 @@ func applyBandSliceToStruct(record []string) (bandCSVFormat, error) {
 		memberNum++
 	}
 
-	if record[3] != "" {
-		member3, err := strconv.Atoi(record[3])
+	if record[4] != "" {
+		member3, err := strconv.Atoi(record[4])
 		if err != nil {
 			log.Fatal(err)
 			return bandStruct, err
@@ -144,8 +154,8 @@ func applyBandSliceToStruct(record []string) (bandCSVFormat, error) {
 		memberNum++
 	}
 
-	if record[4] != "" {
-		member4, err := strconv.Atoi(record[4])
+	if record[5] != "" {
+		member4, err := strconv.Atoi(record[5])
 		if err != nil {
 			log.Fatal(err)
 			return bandStruct, err
@@ -154,8 +164,8 @@ func applyBandSliceToStruct(record []string) (bandCSVFormat, error) {
 		memberNum++
 	}
 
-	if record[5] != "" {
-		member5, err := strconv.Atoi(record[5])
+	if record[6] != "" {
+		member5, err := strconv.Atoi(record[6])
 		if err != nil {
 			log.Fatal(err)
 			return bandStruct, err
@@ -164,8 +174,8 @@ func applyBandSliceToStruct(record []string) (bandCSVFormat, error) {
 		memberNum++
 	}
 
-	if record[6] != "" {
-		member6, err := strconv.Atoi(record[6])
+	if record[7] != "" {
+		member6, err := strconv.Atoi(record[7])
 		if err != nil {
 			log.Fatal(err)
 			return bandStruct, err
@@ -174,8 +184,8 @@ func applyBandSliceToStruct(record []string) (bandCSVFormat, error) {
 		memberNum++
 	}
 
-	if record[7] != "" {
-		member7, err := strconv.Atoi(record[7])
+	if record[8] != "" {
+		member7, err := strconv.Atoi(record[8])
 		if err != nil {
 			log.Fatal(err)
 			return bandStruct, err
@@ -186,14 +196,14 @@ func applyBandSliceToStruct(record []string) (bandCSVFormat, error) {
 
 	bandStruct.memberNum = memberNum
 
-	locID, err := strconv.Atoi(record[8])
+	locID, err := strconv.Atoi(record[9])
 	if err != nil {
 		log.Fatal(err)
 		return bandStruct, err
 	}
 	bandStruct.locID = locID
 
-	bandTypeID, err := strconv.Atoi(record[9])
+	bandTypeID, err := strconv.Atoi(record[10])
 	if err != nil {
 		log.Fatal(err)
 		return bandStruct, err
@@ -232,6 +242,8 @@ func applyScheduleSliceToStruct(record []string) (scheduleCSVFormat, error) {
 }
 
 func bandToStruct(bandStruct bandCSVFormat, members map[int]model.Member, locations map[int]model.Location) (band model.Band, err error) {
+	band.ID = bandStruct.id
+	band.Name = bandStruct.name
 
 	bandType, err := model.SetBandType(bandStruct.bandTypeID)
 	if err != nil {
@@ -439,13 +451,11 @@ func ImportImpossibleTime(fileName string, bands []model.Band, schedules []model
 			End:   impossibleTimeStruct.end,
 		}
 
-		targetBand, err := model.FindBandFromID(impossibleTimeStruct.groupID, bands)
+		bands, err = model.AddImpossibleTimeFromID(impossibleTimeStruct.groupID, bands, impossibleTime)
 		if err != nil {
 			log.Println(err)
 			return bands, err
 		}
-
-		targetBand.ImpossibleTimes = append(targetBand.ImpossibleTimes, impossibleTime)
 	}
 
 	return bands, nil

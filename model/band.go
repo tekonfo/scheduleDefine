@@ -49,14 +49,16 @@ func SetBandType(num int) (bandType, error) {
 	return bandTp, nil
 }
 
-// FindBandFromID is function to find band which has the args's ID
-func FindBandFromID(ID int, bands []Band) (Band, error) {
+// AddImpossibleTimeFromID is function to add impossible time to band which has the args's ID
+func AddImpossibleTimeFromID(ID int, bands []Band, impossibleTime ImpossibleTime) ([]Band, error) {
 
-	for _, band := range bands {
+	for i, band := range bands {
 		if band.ID == ID {
-			return band, nil
+			band.ImpossibleTimes = append(band.ImpossibleTimes, impossibleTime)
+			bands[i] = band
+			return bands, nil
 		}
 	}
 
-	return Band{}, errors.New("no band which has such ID")
+	return bands, errors.New("no band which has such ID")
 }

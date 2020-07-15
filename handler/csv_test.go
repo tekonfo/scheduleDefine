@@ -2,10 +2,16 @@ package handler
 
 import (
 	"FestivalSchedule/model"
+	"fmt"
 	"reflect"
 	"testing"
 	"time"
 )
+
+const memberFile = "../csv/test/member.csv"
+const bandFile = "../csv/test/band.csv"
+const scheduleFile = "../csv/test/schesule.csv"
+const impossibleTimeFile = "../csv/test/impossible.csv"
 
 func Test_applyBandSliceToStruct(t *testing.T) {
 	okRecord := []string{
@@ -104,6 +110,7 @@ func Test_bandToStruct(t *testing.T) {
 	locations := model.InitializeLocation()
 
 	okStruct := bandCSVFormat{
+		id:         1,
 		name:       "LiuLiu",
 		member1ID:  1,
 		member2ID:  2,
@@ -140,6 +147,7 @@ func Test_bandToStruct(t *testing.T) {
 			},
 			wantBand: model.Band{
 				ID:               1,
+				Name:             "LiuLiu",
 				Members:          bandMember,
 				BandType:         bandType,
 				IsMultiPlay:      false,
@@ -319,6 +327,60 @@ func Test_applyImpossibleTimeSliceToStruct(t *testing.T) {
 			}
 			if !reflect.DeepEqual(got, tt.want) {
 				t.Errorf("applyImpossibleTimeSliceToStruct() = %v, want %v", got, tt.want)
+			}
+		})
+	}
+}
+
+func TestImportImpossibleTime(t *testing.T) {
+	fileName := "../csv/test/impossible.csv"
+
+	members, _ := ImportMember(memberFile)
+	locations := model.InitializeLocation()
+	bands, _ := ImportBand(bandFile, members, locations)
+	schedules, _ := ImportSchedule(scheduleFile)
+
+	wantBands, _ := ImportBand(bandFile, members, locations)
+	wantBands[0].ImpossibleTimes = []model.ImpossibleTime{
+		{
+			Date:  time.Date(2020, 5, 22, 0, 0, 0, 0, time.UTC),
+			Start: time.Date(2020, 5, 22, 10, 0, 0, 0, time.UTC),
+			End:   time.Date(2020, 5, 22, 13, 0, 0, 0, time.UTC),
+		},
+	}
+
+	fmt.Println("start")
+
+	type args struct {
+		fileName  string
+		bands     []model.Band
+		schedules []model.Schedule
+	}
+	tests := []struct {
+		name    string
+		args    args
+		want    []model.Band
+		wantErr bool
+	}{
+		{
+			name: "OK",
+			args: args{
+				fileName:  fileName,
+				bands:     bands,
+				schedules: schedules,
+			},
+			want: wantBands,
+		},
+	}
+	for _, tt := range tests {
+		t.Run(tt.name, func(t *testing.T) {
+			got, err := ImportImpossibleTime(tt.args.fileName, tt.args.bands, tt.args.schedules)
+			if (err != nil) != tt.wantErr {
+				t.Errorf("ImportImpossibleTime() error = %v, wantErr %v", err, tt.wantErr)
+				return
+			}
+			if !reflect.DeepEqual(got, tt.want) {
+				t.Errorf("ImportImpossibleTime() = %v, want %v", got, tt.want)
 			}
 		})
 	}
