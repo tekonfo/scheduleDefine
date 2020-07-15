@@ -2,8 +2,8 @@
 CSV Import:
   ✔ ImportBand @done(20-07-13 09:29)
   ✔ ImportMember @done(20-07-10 08:30)
-  ☐ ImportSchedule
-  ☐ ImportImpossibleTime
+  ✔ ImportSchedule @done(20-07-16 08:12)
+  ✔ ImportImpossibleTime @done(20-07-16 08:12)
 
 システムの実装:
   ☐ 要件の確認

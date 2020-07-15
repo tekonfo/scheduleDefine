@@ -8,8 +8,10 @@ import (
 )
 
 const (
-	memberCSV = "csv/member.csv"
-	bandCSV   = "csv/band.csv"
+	memberCSV         = "csv/member.csv"
+	bandCSV           = "csv/band.csv"
+	scheduleCSV       = "csv/schedule.csv"
+	impossibleTimeCSV = "csv/impossible.csv"
 )
 
 func main() {
@@ -21,6 +23,13 @@ func main() {
 	locations := model.InitializeLocation()
 
 	bands, err := handler.ImportBand(bandCSV, members, locations)
+	if err != nil {
+		log.Fatal(err)
+	}
+
+	schedules, _ := handler.ImportSchedule(scheduleCSV)
+
+	bands, err = handler.ImportImpossibleTime(impossibleTimeCSV, bands, schedules)
 	if err != nil {
 		log.Fatal(err)
 	}
