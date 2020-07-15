@@ -15,6 +15,7 @@ const impossibleTimeFile = "../csv/test/impossible.csv"
 
 func Test_applyBandSliceToStruct(t *testing.T) {
 	okRecord := []string{
+		"1",
 		"LiuLiu",
 		"1",
 		"2",
@@ -27,6 +28,7 @@ func Test_applyBandSliceToStruct(t *testing.T) {
 		"1",
 	}
 	falseRecord := []string{
+		"2",
 		"airy",
 		"1",
 		"2",
@@ -53,6 +55,7 @@ func Test_applyBandSliceToStruct(t *testing.T) {
 				record: okRecord,
 			},
 			want: bandCSVFormat{
+				id:         1,
 				name:       "LiuLiu",
 				member1ID:  1,
 				member2ID:  2,
@@ -73,6 +76,7 @@ func Test_applyBandSliceToStruct(t *testing.T) {
 				record: falseRecord,
 			},
 			want: bandCSVFormat{
+				id:         2,
 				name:       "airy",
 				member1ID:  1,
 				member2ID:  2,
@@ -241,22 +245,19 @@ func TestImportSchedule(t *testing.T) {
 
 	want := []model.Schedule{
 		{
-			time.Date(2020, 5, 20, 0, 0, 0, 0, time.UTC),
-			time.Date(2020, 5, 20, 10, 0, 0, 0, time.UTC),
-			time.Date(2020, 5, 20, 18, 0, 0, 0, time.UTC),
-			nil,
+			Day:   time.Date(2020, 5, 20, 0, 0, 0, 0, time.UTC),
+			Start: time.Date(2020, 5, 20, 10, 0, 0, 0, time.UTC),
+			End:   time.Date(2020, 5, 20, 18, 0, 0, 0, time.UTC),
 		},
 		{
-			time.Date(2020, 5, 21, 0, 0, 0, 0, time.UTC),
-			time.Date(2020, 5, 21, 10, 0, 0, 0, time.UTC),
-			time.Date(2020, 5, 21, 18, 0, 0, 0, time.UTC),
-			nil,
+			Day:   time.Date(2020, 5, 21, 0, 0, 0, 0, time.UTC),
+			Start: time.Date(2020, 5, 21, 10, 0, 0, 0, time.UTC),
+			End:   time.Date(2020, 5, 21, 18, 0, 0, 0, time.UTC),
 		},
 		{
-			time.Date(2020, 5, 22, 0, 0, 0, 0, time.UTC),
-			time.Date(2020, 5, 22, 10, 0, 0, 0, time.UTC),
-			time.Date(2020, 5, 22, 18, 0, 0, 0, time.UTC),
-			nil,
+			Day:   time.Date(2020, 5, 22, 0, 0, 0, 0, time.UTC),
+			Start: time.Date(2020, 5, 22, 10, 0, 0, 0, time.UTC),
+			End:   time.Date(2020, 5, 22, 18, 0, 0, 0, time.UTC),
 		},
 	}
 
