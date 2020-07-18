@@ -44,7 +44,7 @@ http://inspishinkou.web.fc2.com/
 休日は2hやる
 
 ### タスクフロー
-- [ ] CSVImport 10h
+- [x] CSVImport 10h
 - [ ] システムの実装 30h
 - [ ] CSVOutput 10h
 - [ ] システムの統合テスト 10h
@@ -55,3 +55,58 @@ http://inspishinkou.web.fc2.com/
 - [ ] GoogleSpreadSheetによるフォームの作成
 - [ ] フォームのバリデーションスクリプト記述
 - [ ] データの入力・実行
+
+
+## システム
+
+
+### アルゴリズム
+
+この問題はNP困難である。
+直近は全探索で一つずつ試す。
+これで時間がかからないようであればこれでOK
+
+### クラス図
+
+<!-- ```mermaid
+classDiagram
+    Band : ID
+    Band : Name
+    Band : DesireLocationID
+    Band : BandType
+    Band : IsMultiPlay
+    Member : ID
+    Location: ID
+    Schedule: ID
+``` -->
+
+### シーケンスフロー
+
+基本的には、上から順に決めていく。
+無理ならロールバックする
+
+登録処理
+
+1. まず初めにコード巻きの時間をロックしておく
+
+```mermaid
+sequenceDiagram
+    システム->>schedules : 現在埋まっていないスケジュールの先頭を取得 var=currentTime
+    システム->>bands : また出演していない && currentTime が不可能時間でないバンドを取得
+    システム->>schedules : そのバンドを登録
+    システム->>bands : マップ完了通知
+```
+
+```mermaid
+graph TD
+A[未登録のschedule取得] --> B{当てはまるバンド検索}
+B --> |OK| C[scheduleにevent追加]
+C --> E[対象bandのisMapped追加]
+B --> |False:ロールバック実行| D[event一つ削除]
+D --> Z[impossibleBandOrder追加] --> B
+E --> F{コード巻き取りが必要}
+F --> |必要| G[scheduleに追加] --> H[timeFromBeforeCodeRollUPを初期化] --> I[最初に戻る]
+F --> |不必要| I
+```
+
+埋まりきらない場合、２回目出演バンドの決定方法

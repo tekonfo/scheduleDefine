@@ -6,9 +6,10 @@ type Location struct {
 	id   int
 	name string
 	// minute
-	playTimes      []int
-	isContinuePlay bool
-	changeTime     int
+	playTimes                []int
+	isContinuePlay           bool
+	changeTime               int
+	timeFromBeforeCodeRollUP int
 }
 
 func InitializeLocation() map[int]Location {

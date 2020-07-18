@@ -12,12 +12,19 @@ const OBBAND = 3
 type Band struct {
 	ID              int
 	Name            string
+	Email           string
 	Members         []Member
 	ImpossibleTimes []ImpossibleTime
 	// 希望出演場所
 	DesireLocationID int
 	BandType         bandType
 	IsMultiPlay      bool
+	// TODO: これらの情報CSVに追加しないといけない
+	wantCafePlayTime                 int
+	wantStPlayTime                   int
+	isHavingMemberAttendingMainStage bool
+	isWantPracticeWithMachine        bool
+	isMapped                         bool
 }
 
 type ImpossibleTime struct {
