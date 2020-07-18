@@ -8,10 +8,10 @@ import (
 )
 
 const (
-	memberCSV         = "csv/member.csv"
-	bandCSV           = "csv/band.csv"
-	scheduleCSV       = "csv/schedule.csv"
-	impossibleTimeCSV = "csv/impossible.csv"
+	memberCSV         = "../../csv/member.csv"
+	bandCSV           = "../../csv/band.csv"
+	scheduleCSV       = "../../csv/schedule.csv"
+	impossibleTimeCSV = "../../csv/impossible.csv"
 )
 
 func main() {
