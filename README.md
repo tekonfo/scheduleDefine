@@ -87,15 +87,13 @@ classDiagram
 
 登録処理
 
-1. まず初めにコード巻きの時間をロックしておく
+1. 1日目のcafe
+2. 1日目のstreet
+3. 2日目のcafe
+4. 2日目のstreet
+5. ...
 
-```mermaid
-sequenceDiagram
-    システム->>schedules : 現在埋まっていないスケジュールの先頭を取得 var=currentTime
-    システム->>bands : また出演していない && currentTime が不可能時間でないバンドを取得
-    システム->>schedules : そのバンドを登録
-    システム->>bands : マップ完了通知
-```
+という順番でスケジュールを決定していく
 
 ```mermaid
 graph TD
@@ -110,3 +108,17 @@ F --> |不必要| I
 ```
 
 埋まりきらない場合、２回目出演バンドの決定方法
+
+バンド検索の詳細
+
+```mermaid
+graph TD
+Y{for で groupを一つ選択} --> |未検索のバンドがある| A[一回も歌っていないバンドである]
+Y --> |未検索のバンドがない| Z[return false]
+A --> B[impossibleBandOrderに含まれていない]
+B --> C[不可能時間でない]
+C --> D[同時刻にバンドメンバーが別の場所で歌っていない]
+D --> E[移動時間の制約に引っかからない]
+E{全ての条件をクリア} --> |Yes| F[return band]
+E --> |No| Y
+```
