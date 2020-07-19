@@ -24,7 +24,7 @@ type Band struct {
 	wantStPlayTime                   int
 	isHavingMemberAttendingMainStage bool
 	isWantPracticeWithMachine        bool
-	isMapped                         bool
+	IsMapped                         bool
 }
 
 type ImpossibleTime struct {

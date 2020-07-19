@@ -3,6 +3,7 @@ package main
 import (
 	"FestivalSchedule/handler"
 	"FestivalSchedule/model"
+	"FestivalSchedule/services"
 	"fmt"
 	"log"
 )
@@ -13,6 +14,11 @@ const (
 	scheduleCSV       = "../../csv/schedule.csv"
 	impossibleTimeCSV = "../../csv/impossible.csv"
 )
+
+func tmp(s *string) error {
+	*s = *s + " tmp"
+	return nil
+}
 
 func main() {
 	members, err := handler.ImportMember(memberCSV)
@@ -34,5 +40,14 @@ func main() {
 		log.Fatal(err)
 	}
 
-	fmt.Println(bands)
+	schedules, err = services.DefineSchedules(schedules, bands, members, locations)
+	fmt.Println(schedules)
+
+	hoge := []string{"aaa", "bbb", "ccc"}
+
+	for i := 0; i < len(hoge); i++ {
+		tmp(&hoge[i])
+		fmt.Println(hoge[i])
+	}
+
 }

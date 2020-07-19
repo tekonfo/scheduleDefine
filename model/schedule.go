@@ -4,14 +4,16 @@ import "time"
 
 // Schedule は各開催日の出演バンドが記載された時系列のスケジュール
 type Schedule struct {
-	Day        time.Time
-	Start      time.Time
-	End        time.Time
-	CafeEvents []event
-	StEvents   []event
+	Day                      time.Time
+	Start                    time.Time
+	End                      time.Time
+	CafeEvents               []Event
+	StEvents                 []Event
+	TimeFromBeforeCodeRollUP int
 }
 
-type event struct {
+// Event はそれぞれのスケジュールが登録されている
+type Event struct {
 	start         time.Time
 	end           time.Time
 	band          Band
