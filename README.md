@@ -100,17 +100,29 @@ classDiagram
 
 という順番でスケジュールを決定していく
 
+`impossibleBandOrderは全日程、場所で共有のものを利用する`
+
+スケジュール調整フロー
 ```mermaid
 graph TD
+AA{未登録のスケジュールが存在する <br/>  and  まだ歌っていないバンドが存在する} --> |Yes| AB{順序をすべて試した}
+AA --> |No| END[終了]
+AB --> |No| A
+AB --> |Yes| BADEND[エラー発生 errorとして返す]
 A[未登録のschedule取得] --> B{当てはまるバンド検索}
 B --> |OK| C[scheduleにevent追加]
 C --> E[対象bandのisMapped追加]
 B --> |False:ロールバック実行| D[event一つ削除]
-D --> Z[impossibleBandOrder追加] --> B
+D --> Z[impossibleBandOrder追加]
+Z --> AA
 E --> F{コード巻き取りが必要}
 F --> |必要| G[scheduleに追加] --> H[timeFromBeforeCodeRollUPを初期化] --> I[最初に戻る]
 F --> |不必要| I
 ```
+
+順序をすべて試したかどうかの判定は
+`ImpossibleBandOrder`にbandsのスライスの末尾のbandのみが入っている順序が含まれているかどうかで判定
+それが含まれていればすべて試している。
 
 埋まりきらない場合、２回目出演バンドの決定方法
 
