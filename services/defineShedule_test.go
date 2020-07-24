@@ -2,6 +2,7 @@ package services
 
 import (
 	"FestivalSchedule/model"
+	"reflect"
 	"testing"
 	"time"
 
@@ -105,9 +106,6 @@ func TestDefineSchedules(t *testing.T) {
 			if diff := cmp.Diff(got, tt.want); diff != "" {
 				t.Errorf("Hogefunc differs: (-got +want)\n%s", diff)
 			}
-			// if !reflect.DeepEqual(got, tt.want) {
-			// 	t.Errorf("DefineSchedules() = %v, want %v", got, tt.want)
-			// }
 		})
 	}
 }
@@ -217,6 +215,74 @@ func Test_isTryAllOrders(t *testing.T) {
 		t.Run(tt.name, func(t *testing.T) {
 			if got := isTryAllOrders(tt.args.impossibleBandOrders, tt.args.bands); got != tt.want {
 				t.Errorf("isTryAllOrders() = %v, want %v", got, tt.want)
+			}
+		})
+	}
+}
+
+func Test_existEmptySchedule(t *testing.T) {
+	locations := model.InitializeLocation()
+
+	emptySchedule := model.Schedule{
+		End: time.Date(2020, 5, 20, 18, 0, 0, 0, time.UTC),
+		Events: []model.Event{
+			{
+				End: time.Date(2020, 5, 20, 17, 0, 0, 0, time.UTC),
+			},
+		},
+		LocationID: 1,
+	}
+
+	notEmptySchedule := model.Schedule{
+		End: time.Date(2020, 5, 20, 18, 0, 0, 0, time.UTC),
+		Events: []model.Event{
+			{
+				End: time.Date(2020, 5, 20, 17, 56, 0, 0, time.UTC),
+			},
+		},
+		LocationID: 1,
+	}
+
+	type args struct {
+		schedules []model.Schedule
+		locations map[int]model.Location
+	}
+	tests := []struct {
+		name    string
+		args    args
+		want    model.Schedule
+		wantErr bool
+	}{
+		{
+			name: "empty schedule is exist",
+			args: args{
+				schedules: []model.Schedule{
+					emptySchedule,
+				},
+				locations: locations,
+			},
+			want: emptySchedule,
+		},
+		{
+			name: "empty schedule is not exist",
+			args: args{
+				schedules: []model.Schedule{
+					notEmptySchedule,
+				},
+				locations: locations,
+			},
+			wantErr: true,
+		},
+	}
+	for _, tt := range tests {
+		t.Run(tt.name, func(t *testing.T) {
+			got, err := existEmptySchedule(tt.args.schedules, tt.args.locations)
+			if (err != nil) != tt.wantErr {
+				t.Errorf("existEmptySchedule() error = %v, wantErr %v", err, tt.wantErr)
+				return
+			}
+			if !tt.wantErr && !reflect.DeepEqual(got, tt.want) {
+				t.Errorf("existEmptySchedule() = %v, want %v", got, tt.want)
 			}
 		})
 	}

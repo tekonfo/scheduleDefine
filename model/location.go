@@ -6,7 +6,7 @@ type Location struct {
 	ID   int
 	name string
 	// minute
-	playTimes      []int
+	PlayTimes      []int
 	isContinuePlay bool
 	changeTime     int
 }
@@ -15,14 +15,14 @@ func InitializeLocation() map[int]Location {
 	cafe := Location{
 		ID:             1,
 		name:           "street",
-		playTimes:      []int{5, 10},
+		PlayTimes:      []int{5, 10},
 		isContinuePlay: false,
 	}
 
 	street := Location{
 		ID:             2,
 		name:           "cafe",
-		playTimes:      []int{10, 15},
+		PlayTimes:      []int{10, 15},
 		isContinuePlay: true,
 	}
 

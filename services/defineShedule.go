@@ -130,8 +130,27 @@ func defineSchedule(
 	return nil
 }
 
-func existEmptySchedule(schedules []model.Schedule) (bool, model.Schedule) {
-	return true, schedules[0]
+// 末尾のスケジュールの最後が埋まっているかどうかを確認する
+func existEmptySchedule(schedules []model.Schedule, locations map[int]model.Location) (model.Schedule, error) {
+	for _, schedule := range schedules {
+		if len(schedule.Events) == 0 {
+			return schedule, nil
+		}
+
+		lastEvent := schedule.Events[len(schedule.Events)-1]
+
+		// スケジュールを埋めれない最小の時間
+		targetLocation := locations[schedule.LocationID]
+		minimumTime := targetLocation.PlayTimes[0]
+
+		estimateNextEndTime := lastEvent.End.Add(time.Minute * time.Duration(minimumTime))
+
+		if estimateNextEndTime.Unix() <= schedule.End.Unix() {
+			return schedule, nil
+		}
+	}
+
+	return schedules[0], errors.New("could not find empty schedule")
 }
 
 func existUnplayBand(bands []model.Band) bool {
@@ -177,21 +196,27 @@ func DefineSchedules(schedules []model.Schedule, bands []model.Band, members map
 		}
 
 		// 未登録のスケジュールが存在する
-		if b, emptySchedule := existEmptySchedule(schedules); b {
-			anotherSchedule := getAnotherSchedule(schedules, emptySchedule)
-			err := defineSchedule(&emptySchedule, &anotherSchedule, bands, members, locations, currentBandOrder, impossibleBandOrders)
-			if err != nil {
-				switch e := err.(type) {
-				case *RollbackError:
-					currentBandOrder, err = currentBandOrder.DeleteBandOrder()
-					if err != nil {
-						return schedules, err
-					}
-					currentBandOrder.AddImpossibleBandOrders(impossibleBandOrders)
-					continue
-				default:
-					return schedules, e
+		emptySchedule, err := existEmptySchedule(schedules, locations)
+		if err != nil {
+			return schedules, errors.New("all shcedules is mapped")
+		}
+
+		// cafeならst, stならcafeのスケジュールを取得
+		anotherSchedule := getAnotherSchedule(schedules, emptySchedule)
+
+		// scheduleを一件決定
+		err = defineSchedule(&emptySchedule, &anotherSchedule, bands, members, locations, currentBandOrder, impossibleBandOrders)
+		if err != nil {
+			switch e := err.(type) {
+			case *RollbackError:
+				currentBandOrder, err = currentBandOrder.DeleteBandOrder()
+				if err != nil {
+					return schedules, err
 				}
+				currentBandOrder.AddImpossibleBandOrders(impossibleBandOrders)
+				continue
+			default:
+				return schedules, e
 			}
 		}
 	}
