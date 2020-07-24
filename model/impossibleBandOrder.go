@@ -9,3 +9,16 @@ type ImpossibleBandOrder []int
 func (currentBandOrder ImpossibleBandOrder) IsExistBandOrder(band Band, impossibleBandOrder []ImpossibleBandOrder) bool {
 	return true
 }
+
+// DeleteBandOrder は現在のBandOrderを一つ削除する
+// もしスライスがゼロならerrorを返す
+// ASK: これは[]intなので、bandOrderを返さなくてもいいのか？
+func (currentBandOrder ImpossibleBandOrder) DeleteBandOrder() (ImpossibleBandOrder, error) {
+	return currentBandOrder, nil
+}
+
+// AddImpossibleBandOrders は現在の順番を追加したImpossiblebandOrdersを返す関数
+func (currentBandOrder ImpossibleBandOrder) AddImpossibleBandOrders(impossibleBandOrders []ImpossibleBandOrder) ([]ImpossibleBandOrder, error) {
+
+	return impossibleBandOrders, nil
+}

@@ -7,6 +7,16 @@ import (
 	"time"
 )
 
+// RollbackError はロールバックが発生される場合に返されるエラーです。
+type RollbackError struct {
+	Message string
+	Code    int
+}
+
+func (err *RollbackError) Error() string {
+	return fmt.Sprintf("rollback error= %s [code=%d]", err.Message, err.Code)
+}
+
 func getUNRegisterdSchedule(schedule model.Schedule) (time.Time, error) {
 	return time.Now(), nil
 }
@@ -157,11 +167,18 @@ func DefineSchedules(schedules []model.Schedule, bands []model.Band, members map
 			anotherSchedule := getAnotherSchedule(schedules, emptySchedule)
 			err := defineSchedule(&emptySchedule, &anotherSchedule, bands, members, locations, currentBandOrder, impossibleBandOrders)
 			if err != nil {
-				// TODO: rollbackの場合はreturnさせない
-
-				return schedules, err
+				switch e := err.(type) {
+				case *RollbackError:
+					currentBandOrder, err = currentBandOrder.DeleteBandOrder()
+					if err != nil {
+						return schedules, err
+					}
+					currentBandOrder.AddImpossibleBandOrders(impossibleBandOrders)
+					continue
+				default:
+					return schedules, e
+				}
 			}
 		}
-
 	}
 }
