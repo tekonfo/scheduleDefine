@@ -1,11 +1,11 @@
 package services
 
 import (
-	"FestivalSchedule/handler"
 	"FestivalSchedule/model"
-	"log"
-	"reflect"
 	"testing"
+	"time"
+
+	"github.com/google/go-cmp/cmp"
 )
 
 const (
@@ -16,19 +16,48 @@ const (
 )
 
 func TestDefineSchedules(t *testing.T) {
-	members, err := handler.ImportMember(memberCSV)
-	if err != nil {
-		log.Fatal(err)
-	}
 	locations := model.InitializeLocation()
-	bands, err := handler.ImportBand(bandCSV, members, locations)
-	if err != nil {
-		log.Fatal(err)
+
+	schedules := []model.Schedule{
+		{
+			Day:        time.Date(2020, 5, 20, 0, 0, 0, 0, time.UTC),
+			Start:      time.Date(2020, 5, 20, 10, 0, 0, 0, time.UTC),
+			End:        time.Date(2020, 5, 20, 18, 0, 0, 0, time.UTC),
+			LocationID: 1,
+		},
 	}
-	schedules, _ := handler.ImportSchedule(scheduleCSV, locations)
-	bands, err = handler.ImportImpossibleTime(impossibleTimeCSV, bands, schedules)
-	if err != nil {
-		log.Fatal(err)
+
+	sampleMember := model.Member{
+		ID: 1,
+	}
+
+	bandType, _ := model.SetBandType(1)
+
+	wantSchedule := []model.Schedule{
+		{
+			Day:        time.Date(2020, 5, 20, 0, 0, 0, 0, time.UTC),
+			Start:      time.Date(2020, 5, 20, 10, 0, 0, 0, time.UTC),
+			End:        time.Date(2020, 5, 20, 18, 0, 0, 0, time.UTC),
+			LocationID: 1,
+			Events: []model.Event{
+				{
+					Start: time.Date(2020, 5, 20, 10, 0, 0, 0, time.UTC),
+					End:   time.Date(2020, 5, 20, 10, 5, 0, 0, time.UTC),
+					Band: model.Band{
+						ID:   1,
+						Name: "",
+						Members: []model.Member{
+							sampleMember,
+						},
+						// 希望出演場所
+						DesireLocationID: 1,
+						BandType:         bandType,
+						WantCafePlayTime: 10,
+						WantStPlayTime:   5,
+					},
+				},
+			},
+		},
 	}
 
 	type args struct {
@@ -46,9 +75,24 @@ func TestDefineSchedules(t *testing.T) {
 		{
 			name: "sample-A",
 			args: args{
+				locations: locations,
+				bands: []model.Band{
+					{
+						ID:   1,
+						Name: "",
+						Members: []model.Member{
+							sampleMember,
+						},
+						// 希望出演場所
+						DesireLocationID: 1,
+						BandType:         bandType,
+						WantCafePlayTime: 10,
+						WantStPlayTime:   5,
+					},
+				},
 				schedules: schedules,
 			},
-			want: schedules,
+			want: wantSchedule,
 		},
 	}
 	for _, tt := range tests {
@@ -58,9 +102,12 @@ func TestDefineSchedules(t *testing.T) {
 				t.Errorf("DefineSchedules() error = %v, wantErr %v", err, tt.wantErr)
 				return
 			}
-			if !reflect.DeepEqual(got, tt.want) {
-				t.Errorf("DefineSchedules() = %v, want %v", got, tt.want)
+			if diff := cmp.Diff(got, tt.want); diff != "" {
+				t.Errorf("Hogefunc differs: (-got +want)\n%s", diff)
 			}
+			// if !reflect.DeepEqual(got, tt.want) {
+			// 	t.Errorf("DefineSchedules() = %v, want %v", got, tt.want)
+			// }
 		})
 	}
 }
