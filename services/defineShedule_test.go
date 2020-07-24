@@ -111,3 +111,54 @@ func TestDefineSchedules(t *testing.T) {
 		})
 	}
 }
+
+func Test_existUnplayBand(t *testing.T) {
+	type args struct {
+		bands []model.Band
+	}
+	tests := []struct {
+		name string
+		args args
+		want bool
+	}{
+		{
+			name: "true",
+			args: args{
+				bands: []model.Band{
+					{
+						ID:       1,
+						IsMapped: true,
+					},
+					{
+						ID:       2,
+						IsMapped: false,
+					},
+				},
+			},
+			want: true,
+		},
+		{
+			name: "false",
+			args: args{
+				bands: []model.Band{
+					{
+						ID:       1,
+						IsMapped: true,
+					},
+					{
+						ID:       2,
+						IsMapped: true,
+					},
+				},
+			},
+			want: false,
+		},
+	}
+	for _, tt := range tests {
+		t.Run(tt.name, func(t *testing.T) {
+			if got := existUnplayBand(tt.args.bands); got != tt.want {
+				t.Errorf("existUnplayBand() = %v, want %v", got, tt.want)
+			}
+		})
+	}
+}

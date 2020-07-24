@@ -134,8 +134,13 @@ func existEmptySchedule(schedules []model.Schedule) (bool, model.Schedule) {
 	return true, schedules[0]
 }
 
-func existUnplayBand() bool {
-	return true
+func existUnplayBand(bands []model.Band) bool {
+	for _, band := range bands {
+		if !band.IsMapped {
+			return true
+		}
+	}
+	return false
 }
 
 func isTryAllOrders() bool {
@@ -151,7 +156,7 @@ func DefineSchedules(schedules []model.Schedule, bands []model.Band, members map
 	impossibleBandOrders := []model.ImpossibleBandOrder{}
 	currentBandOrder := model.ImpossibleBandOrder{}
 	for {
-		if existUnplayBand() {
+		if existUnplayBand(bands) {
 			fmt.Println("success!!")
 			return schedules, nil
 		}
