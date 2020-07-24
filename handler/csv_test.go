@@ -243,21 +243,44 @@ func TestImportMember(t *testing.T) {
 func TestImportSchedule(t *testing.T) {
 	const scheduleCSV = "../csv/test/schedule.csv"
 
+	locations := model.InitializeLocation()
+
 	want := []model.Schedule{
 		{
-			Day:   time.Date(2020, 5, 20, 0, 0, 0, 0, time.UTC),
-			Start: time.Date(2020, 5, 20, 10, 0, 0, 0, time.UTC),
-			End:   time.Date(2020, 5, 20, 18, 0, 0, 0, time.UTC),
+			Day:        time.Date(2020, 5, 20, 0, 0, 0, 0, time.UTC),
+			Start:      time.Date(2020, 5, 20, 10, 0, 0, 0, time.UTC),
+			End:        time.Date(2020, 5, 20, 18, 0, 0, 0, time.UTC),
+			LocationID: 1,
 		},
 		{
-			Day:   time.Date(2020, 5, 21, 0, 0, 0, 0, time.UTC),
-			Start: time.Date(2020, 5, 21, 10, 0, 0, 0, time.UTC),
-			End:   time.Date(2020, 5, 21, 18, 0, 0, 0, time.UTC),
+			Day:        time.Date(2020, 5, 20, 0, 0, 0, 0, time.UTC),
+			Start:      time.Date(2020, 5, 20, 10, 0, 0, 0, time.UTC),
+			End:        time.Date(2020, 5, 20, 18, 0, 0, 0, time.UTC),
+			LocationID: 2,
 		},
 		{
-			Day:   time.Date(2020, 5, 22, 0, 0, 0, 0, time.UTC),
-			Start: time.Date(2020, 5, 22, 10, 0, 0, 0, time.UTC),
-			End:   time.Date(2020, 5, 22, 18, 0, 0, 0, time.UTC),
+			Day:        time.Date(2020, 5, 21, 0, 0, 0, 0, time.UTC),
+			Start:      time.Date(2020, 5, 21, 10, 0, 0, 0, time.UTC),
+			End:        time.Date(2020, 5, 21, 18, 0, 0, 0, time.UTC),
+			LocationID: 1,
+		},
+		{
+			Day:        time.Date(2020, 5, 21, 0, 0, 0, 0, time.UTC),
+			Start:      time.Date(2020, 5, 21, 10, 0, 0, 0, time.UTC),
+			End:        time.Date(2020, 5, 21, 18, 0, 0, 0, time.UTC),
+			LocationID: 2,
+		},
+		{
+			Day:        time.Date(2020, 5, 22, 0, 0, 0, 0, time.UTC),
+			Start:      time.Date(2020, 5, 22, 10, 0, 0, 0, time.UTC),
+			End:        time.Date(2020, 5, 22, 18, 0, 0, 0, time.UTC),
+			LocationID: 1,
+		},
+		{
+			Day:        time.Date(2020, 5, 22, 0, 0, 0, 0, time.UTC),
+			Start:      time.Date(2020, 5, 22, 10, 0, 0, 0, time.UTC),
+			End:        time.Date(2020, 5, 22, 18, 0, 0, 0, time.UTC),
+			LocationID: 2,
 		},
 	}
 
@@ -280,7 +303,7 @@ func TestImportSchedule(t *testing.T) {
 	}
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
-			got, err := ImportSchedule(tt.args.fileName)
+			got, err := ImportSchedule(tt.args.fileName, locations)
 			if (err != nil) != tt.wantErr {
 				t.Errorf("ImportSchedule() error = %v, wantErr %v", err, tt.wantErr)
 				return
@@ -339,7 +362,7 @@ func TestImportImpossibleTime(t *testing.T) {
 	members, _ := ImportMember(memberFile)
 	locations := model.InitializeLocation()
 	bands, _ := ImportBand(bandFile, members, locations)
-	schedules, _ := ImportSchedule(scheduleFile)
+	schedules, _ := ImportSchedule(scheduleFile, locations)
 
 	wantBands, _ := ImportBand(bandFile, members, locations)
 	wantBands[0].ImpossibleTimes = []model.ImpossibleTime{

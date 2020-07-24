@@ -372,7 +372,7 @@ func ImportMember(fileName string) (map[int]model.Member, error) {
 }
 
 // ImportSchedule is to import schedule from csv
-func ImportSchedule(fileName string) ([]model.Schedule, error) {
+func ImportSchedule(fileName string, locations map[int]model.Location) ([]model.Schedule, error) {
 	schedules := []model.Schedule{}
 
 	if !fileExists(fileName) {
@@ -403,13 +403,16 @@ func ImportSchedule(fileName string) ([]model.Schedule, error) {
 			return schedules, err
 		}
 
-		schedule := model.Schedule{
-			Day:   scheduleStruct.date,
-			Start: scheduleStruct.start,
-			End:   scheduleStruct.end,
-		}
+		for id := range locations {
+			schedule := model.Schedule{
+				Day:        scheduleStruct.date,
+				Start:      scheduleStruct.start,
+				End:        scheduleStruct.end,
+				LocationID: id,
+			}
 
-		schedules = append(schedules, schedule)
+			schedules = append(schedules, schedule)
+		}
 	}
 
 	return schedules, nil

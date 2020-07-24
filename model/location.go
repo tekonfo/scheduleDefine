@@ -3,7 +3,7 @@ package model
 import "errors"
 
 type Location struct {
-	id   int
+	ID   int
 	name string
 	// minute
 	playTimes      []int
@@ -13,14 +13,14 @@ type Location struct {
 
 func InitializeLocation() map[int]Location {
 	cafe := Location{
-		id:             1,
+		ID:             1,
 		name:           "cafe",
 		playTimes:      []int{5, 10},
 		isContinuePlay: false,
 	}
 
 	street := Location{
-		id:             2,
+		ID:             2,
 		name:           "street",
 		playTimes:      []int{10, 15},
 		isContinuePlay: true,
