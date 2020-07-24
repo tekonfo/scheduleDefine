@@ -175,8 +175,17 @@ func isTryAllOrders(impossibleBandOrders []model.ImpossibleBandOrder, bands []mo
 	return false
 }
 
-func getAnotherSchedule(schedules []model.Schedule, targetSchedule model.Schedule) model.Schedule {
-	return schedules[1]
+func getAnotherSchedule(schedules []model.Schedule, targetSchedule model.Schedule) (model.Schedule, error) {
+	targetLocationID := targetSchedule.LocationID
+	targetDay := targetSchedule.Day
+
+	for _, schedule := range schedules {
+		if schedule.Day.Unix() == targetDay.Unix() && schedule.LocationID != targetLocationID {
+			return schedule, nil
+		}
+	}
+
+	return model.Schedule{}, errors.New("no such a schedule")
 }
 
 // DefineSchedules は全てのスケジュールを決定するビジネスロジックです。
@@ -202,7 +211,10 @@ func DefineSchedules(schedules []model.Schedule, bands []model.Band, members map
 		}
 
 		// cafeならst, stならcafeのスケジュールを取得
-		anotherSchedule := getAnotherSchedule(schedules, emptySchedule)
+		anotherSchedule, err := getAnotherSchedule(schedules, emptySchedule)
+		if err != nil {
+			return schedules, err
+		}
 
 		// scheduleを一件決定
 		err = defineSchedule(&emptySchedule, &anotherSchedule, bands, members, locations, currentBandOrder, impossibleBandOrders)

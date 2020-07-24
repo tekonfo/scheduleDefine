@@ -287,3 +287,60 @@ func Test_existEmptySchedule(t *testing.T) {
 		})
 	}
 }
+
+func Test_getAnotherSchedule(t *testing.T) {
+
+	aSchedule := model.Schedule{
+		Day:        time.Date(2020, 5, 20, 0, 0, 0, 0, time.UTC),
+		LocationID: 1,
+	}
+
+	bSchedule := model.Schedule{
+		Day:        time.Date(2020, 5, 20, 0, 0, 0, 0, time.UTC),
+		LocationID: 2,
+	}
+
+	type args struct {
+		schedules      []model.Schedule
+		targetSchedule model.Schedule
+	}
+	tests := []struct {
+		name    string
+		args    args
+		want    model.Schedule
+		wantErr bool
+	}{
+		{
+			name: "ok",
+			args: args{
+				schedules: []model.Schedule{
+					aSchedule, bSchedule,
+				},
+				targetSchedule: aSchedule,
+			},
+			want: bSchedule,
+		},
+		{
+			name: "ok",
+			args: args{
+				schedules: []model.Schedule{
+					aSchedule, bSchedule,
+				},
+				targetSchedule: bSchedule,
+			},
+			want: aSchedule,
+		},
+	}
+	for _, tt := range tests {
+		t.Run(tt.name, func(t *testing.T) {
+			got, err := getAnotherSchedule(tt.args.schedules, tt.args.targetSchedule)
+			if (err != nil) != tt.wantErr {
+				t.Errorf("getAnotherSchedule() error = %v, wantErr %v", err, tt.wantErr)
+				return
+			}
+			if !reflect.DeepEqual(got, tt.want) {
+				t.Errorf("getAnotherSchedule() = %v, want %v", got, tt.want)
+			}
+		})
+	}
+}
