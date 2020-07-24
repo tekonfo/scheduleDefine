@@ -39,6 +39,16 @@ type bandType struct {
 	name string
 }
 
+// IsPlay は対象のバンドが既に歌っているのかどうかをチェックする関数
+func (band Band) IsPlay() bool {
+	return band.IsMapped
+}
+
+// IsImpossibleTime は対象の時間がバンドの不可能時間に一致していないのかチェックする関数
+func (band Band) IsImpossibleTime() bool {
+	return true
+}
+
 func SetBandType(num int) (bandType, error) {
 	var bandTp bandType
 
