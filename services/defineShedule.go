@@ -143,8 +143,17 @@ func existUnplayBand(bands []model.Band) bool {
 	return false
 }
 
-func isTryAllOrders() bool {
-	return true
+// bands配列の、一番末尾のbandのみのbandordersが存在すれば、
+// 全パターンを試したことになるため、それで判定
+func isTryAllOrders(impossibleBandOrders []model.ImpossibleBandOrder, bands []model.Band) bool {
+	lastBand := bands[len(bands)-1]
+	targetBandOrder := []int{lastBand.ID}
+	for _, order := range impossibleBandOrders {
+		if order.Deepequal(targetBandOrder) {
+			return true
+		}
+	}
+	return false
 }
 
 func getAnotherSchedule(schedules []model.Schedule, targetSchedule model.Schedule) model.Schedule {
@@ -162,7 +171,7 @@ func DefineSchedules(schedules []model.Schedule, bands []model.Band, members map
 		}
 
 		// 順序をすべて試した
-		if isTryAllOrders() {
+		if isTryAllOrders(impossibleBandOrders, bands) {
 			fmt.Println("fail: could not find match pattern")
 			return schedules, errors.New("could not find match pattern")
 		}

@@ -1,5 +1,7 @@
 package model
 
+import "reflect"
+
 // ImpossibleBandOrder is 実現不可能なバンドの順番を記録するためのtype
 // ロールバックされる際に追加される
 // この配列は1日目~最終日まで継続して全ての場所のバンド情報を保持する
@@ -21,4 +23,13 @@ func (currentBandOrder ImpossibleBandOrder) DeleteBandOrder() (ImpossibleBandOrd
 func (currentBandOrder ImpossibleBandOrder) AddImpossibleBandOrders(impossibleBandOrders []ImpossibleBandOrder) ([]ImpossibleBandOrder, error) {
 
 	return impossibleBandOrders, nil
+}
+
+// Deepequal はbandOrderが引数のintsと一致しているのかどうかを判定する関数
+func (currentBandOrder ImpossibleBandOrder) Deepequal(ints []int) bool {
+	orderInt := []int{}
+	for _, order := range currentBandOrder {
+		orderInt = append(orderInt, order)
+	}
+	return reflect.DeepEqual(orderInt, ints)
 }

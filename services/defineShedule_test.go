@@ -162,3 +162,62 @@ func Test_existUnplayBand(t *testing.T) {
 		})
 	}
 }
+
+func Test_isTryAllOrders(t *testing.T) {
+	bands := []model.Band{
+		{
+			ID: 1,
+		},
+		{
+			ID: 2,
+		},
+		{
+			ID: 3,
+		},
+		{
+			ID: 4,
+		},
+		{
+			ID: 5,
+		},
+	}
+
+	type args struct {
+		impossibleBandOrders []model.ImpossibleBandOrder
+		bands                []model.Band
+	}
+	tests := []struct {
+		name string
+		args args
+		want bool
+	}{
+		{
+			name: "false",
+			args: args{
+				impossibleBandOrders: []model.ImpossibleBandOrder{{1, 2, 3, 4}},
+				bands:                bands,
+			},
+			want: false,
+		},
+		{
+			name: "true",
+			args: args{
+				impossibleBandOrders: []model.ImpossibleBandOrder{
+					{1, 2, 3, 4},
+					{2},
+					{5, 4, 3},
+					{5},
+				},
+				bands: bands,
+			},
+			want: true,
+		},
+	}
+	for _, tt := range tests {
+		t.Run(tt.name, func(t *testing.T) {
+			if got := isTryAllOrders(tt.args.impossibleBandOrders, tt.args.bands); got != tt.want {
+				t.Errorf("isTryAllOrders() = %v, want %v", got, tt.want)
+			}
+		})
+	}
+}
