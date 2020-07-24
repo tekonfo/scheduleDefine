@@ -285,7 +285,8 @@ func TestImportSchedule(t *testing.T) {
 	}
 
 	type args struct {
-		fileName string
+		fileName  string
+		locations map[int]model.Location
 	}
 	tests := []struct {
 		name    string
@@ -296,14 +297,15 @@ func TestImportSchedule(t *testing.T) {
 		{
 			name: "OK",
 			args: args{
-				fileName: scheduleCSV,
+				fileName:  scheduleCSV,
+				locations: locations,
 			},
 			want: want,
 		},
 	}
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
-			got, err := ImportSchedule(tt.args.fileName, locations)
+			got, err := ImportSchedule(tt.args.fileName, tt.args.locations)
 			if (err != nil) != tt.wantErr {
 				t.Errorf("ImportSchedule() error = %v, wantErr %v", err, tt.wantErr)
 				return

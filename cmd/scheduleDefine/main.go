@@ -33,7 +33,7 @@ func main() {
 		log.Fatal(err)
 	}
 
-	schedules, _ := handler.ImportSchedule(scheduleCSV)
+	schedules, _ := handler.ImportSchedule(scheduleCSV, locations)
 
 	bands, err = handler.ImportImpossibleTime(impossibleTimeCSV, bands, schedules)
 	if err != nil {
