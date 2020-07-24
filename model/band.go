@@ -20,10 +20,10 @@ type Band struct {
 	BandType         bandType
 	IsMultiPlay      bool
 	// TODO: これらの情報CSVに追加しないといけない
-	wantCafePlayTime                 int
-	wantStPlayTime                   int
-	isHavingMemberAttendingMainStage bool
-	isWantPracticeWithMachine        bool
+	WantCafePlayTime                 int
+	WantStPlayTime                   int
+	IsHavingMemberAttendingMainStage bool
+	IsWantPracticeWithMachine        bool
 	IsMapped                         bool
 }
 

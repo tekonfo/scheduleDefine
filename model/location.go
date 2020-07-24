@@ -14,14 +14,14 @@ type Location struct {
 func InitializeLocation() map[int]Location {
 	cafe := Location{
 		ID:             1,
-		name:           "cafe",
+		name:           "street",
 		playTimes:      []int{5, 10},
 		isContinuePlay: false,
 	}
 
 	street := Location{
 		ID:             2,
-		name:           "street",
+		name:           "cafe",
 		playTimes:      []int{10, 15},
 		isContinuePlay: true,
 	}

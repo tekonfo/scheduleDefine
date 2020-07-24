@@ -14,8 +14,8 @@ type Schedule struct {
 
 // Event はそれぞれのスケジュールが登録されている
 type Event struct {
-	start         time.Time
-	end           time.Time
-	band          Band
-	isCodeSetting bool
+	Start         time.Time
+	End           time.Time
+	Band          Band
+	IsCodeSetting bool
 }
