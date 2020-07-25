@@ -5,10 +5,16 @@ import (
 	"time"
 )
 
-const MAINBAND = 1
-const TMPBAND = 2
-const OBBAND = 3
+const (
+	// MAINBAND は本バンド
+	MAINBAND = 1
+	// TMPBAND は企画バンド
+	TMPBAND = 2
+	// OBBAND はOBバンド
+	OBBAND = 3
+)
 
+// Band はバンド情報を定義した構造体
 type Band struct {
 	ID              int
 	Name            string
@@ -26,15 +32,16 @@ type Band struct {
 	IsMapped                         bool
 }
 
+// ImpossibleTime はBandが持つ不可能時間の一つを定義した構造体
 type ImpossibleTime struct {
 	Date  time.Time
 	Start time.Time
 	End   time.Time
 }
 
-// バンドの種類は、本バンド、企画バンド、OBバンドの三種類が存在する
+// BandType はバンドの種類を定義した構造体
 type BandType struct {
-	Id   int
+	ID   int
 	Name string
 }
 
@@ -48,10 +55,12 @@ func (band Band) IsImpossibleTime() bool {
 	return true
 }
 
+// IsMatchLocation はバンドの希望している場所と、引数の場所がマッチしているのかを判定する関数
 func (band Band) IsMatchLocation(locationID int) bool {
 	return band.DesireLocationID == locationID
 }
 
+// SetBandType は引数のIDから、BandTypeを返す関数
 func SetBandType(num int) (BandType, error) {
 	var bandTp BandType
 

@@ -2,15 +2,16 @@ package model
 
 import "errors"
 
+// Location は歌う場所の情報を定義している構造体
 type Location struct {
 	ID   int
 	name string
 	// minute
 	PlayTimes      []int
 	isContinuePlay bool
-	changeTime     int
 }
 
+// InitializeLocation は初期のLocation情報を返す関数
 func InitializeLocation() map[int]Location {
 	cafe := Location{
 		ID:             1,
@@ -32,12 +33,10 @@ func InitializeLocation() map[int]Location {
 	}
 }
 
+// CheckValidLocationID は数字がlocationIDとして定義されているのかを判定する関数
 func CheckValidLocationID(num int, locations map[int]Location) error {
 	if _, ok := locations[num]; ok {
 		return nil
 	}
 	return errors.New("this ID is not in locations")
 }
-
-// TODO: カフェ→ストの移動時間は5分以上、スト→カフェの移動時間は10分以上になるようにする必要がある
-// これどうやって実装しようか？

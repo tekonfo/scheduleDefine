@@ -2,6 +2,7 @@ package model
 
 import (
 	"testing"
+	"time"
 )
 
 func TestMember_CheckDoubleCheck(t *testing.T) {
@@ -81,6 +82,68 @@ func TestCheckValidMembers(t *testing.T) {
 			}
 			if got != tt.want {
 				t.Errorf("CheckValidMembers() = %v, want %v", got, tt.want)
+			}
+		})
+	}
+}
+
+func TestMember_IsViolateTimeRule(t *testing.T) {
+	type fields struct {
+		ID     int
+		Name   string
+		Bands  []Band
+		Events []Event
+	}
+	type args struct {
+		targetTime time.Time
+	}
+	tests := []struct {
+		name   string
+		fields fields
+		args   args
+		want   bool
+	}{
+		{
+			name: "true",
+			fields: fields{
+				Events: []Event{
+					{
+						Start: time.Date(2020, 5, 20, 10, 55, 0, 0, time.UTC),
+						End:   time.Date(2020, 5, 20, 11, 05, 0, 0, time.UTC),
+					},
+				},
+			},
+			args: args{
+				targetTime: time.Date(2020, 5, 20, 11, 04, 0, 0, time.UTC),
+			},
+			want: true,
+		},
+		{
+			name: "false",
+			fields: fields{
+				Events: []Event{
+					{
+						Start: time.Date(2020, 5, 20, 10, 55, 0, 0, time.UTC),
+						End:   time.Date(2020, 5, 20, 11, 05, 0, 0, time.UTC),
+					},
+				},
+			},
+			args: args{
+				targetTime: time.Date(2020, 5, 20, 11, 20, 0, 0, time.UTC),
+			},
+			want: false,
+		},
+	}
+	for _, tt := range tests {
+		t.Run(tt.name, func(t *testing.T) {
+			member := Member{
+				ID:     tt.fields.ID,
+				Name:   tt.fields.Name,
+				Bands:  tt.fields.Bands,
+				Events: tt.fields.Events,
+			}
+			if got := member.IsViolateTimeRule(tt.args.targetTime); got != tt.want {
+				t.Errorf("Member.IsViolateTimeRule() = %v, want %v", got, tt.want)
 			}
 		})
 	}

@@ -80,6 +80,8 @@ func addEvent(events []model.Event, playTime int, band *model.Band, targetTime t
 	}
 	events = append(events, event)
 
+	// TODO: それぞれのメンバーにEvent登録処理
+
 	return events, nil
 }
 

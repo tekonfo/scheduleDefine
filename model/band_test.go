@@ -21,7 +21,7 @@ func Test_setBandType(t *testing.T) {
 				num: 1,
 			},
 			want: BandType{
-				Id:   1,
+				ID:   1,
 				Name: "本バンド",
 			},
 			wantErr: false,
