@@ -7,6 +7,10 @@ import (
 	"time"
 )
 
+// CODEROLLUPINTERVAL はコード巻きの間隔
+// これを超えるとコード巻きをしなければならない
+const CODEROLLUPINTERVAL = 90
+
 // RollbackError はロールバックが発生される場合に返されるエラーです。
 type RollbackError struct {
 	Message string
@@ -79,8 +83,27 @@ func addEvent(events []model.Event, playTime int, band *model.Band, targetTime t
 	return events, nil
 }
 
-func addTimeForCodeSetting(schedule model.Schedule, playTime int) error {
-	return nil
+func addTimeForCodeSetting(schedule model.Schedule, playTime int) (model.Schedule, error) {
+	schedule.TimeFromBeforeCodeRollUP += playTime
+
+	// コード巻きイベント追加
+	if schedule.TimeFromBeforeCodeRollUP >= CODEROLLUPINTERVAL {
+
+		lastEvent := schedule.Events[len(schedule.Events)-1]
+		lastEventEnd := lastEvent.End
+
+		event := model.Event{
+			Start:         lastEventEnd,
+			End:           lastEventEnd.Add(time.Minute * time.Duration(playTime)),
+			IsCodeSetting: true,
+		}
+
+		schedule.Events = append(schedule.Events, event)
+
+		schedule.TimeFromBeforeCodeRollUP -= CODEROLLUPINTERVAL
+	}
+
+	return schedule, nil
 }
 
 func clearTimeForCodeSetup(schedule *model.Schedule) error {

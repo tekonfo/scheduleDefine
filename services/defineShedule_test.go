@@ -447,6 +447,33 @@ func Test_addEvent(t *testing.T) {
 }
 
 func Test_addTimeForCodeSetting(t *testing.T) {
+	schedule := model.Schedule{
+		TimeFromBeforeCodeRollUP: 80,
+		Events: []model.Event{
+			{
+				Start: time.Date(2020, 5, 20, 10, 55, 0, 0, time.UTC),
+				End:   time.Date(2020, 5, 20, 11, 00, 0, 0, time.UTC),
+			},
+		},
+	}
+
+	playTime := 10
+
+	want := model.Schedule{
+		TimeFromBeforeCodeRollUP: 0,
+		Events: []model.Event{
+			{
+				Start: time.Date(2020, 5, 20, 10, 55, 0, 0, time.UTC),
+				End:   time.Date(2020, 5, 20, 11, 00, 0, 0, time.UTC),
+			},
+			{
+				Start:         time.Date(2020, 5, 20, 11, 00, 0, 0, time.UTC),
+				End:           time.Date(2020, 5, 20, 11, 10, 0, 0, time.UTC),
+				IsCodeSetting: true,
+			},
+		},
+	}
+
 	type args struct {
 		schedule model.Schedule
 		playTime int
@@ -454,14 +481,27 @@ func Test_addTimeForCodeSetting(t *testing.T) {
 	tests := []struct {
 		name    string
 		args    args
+		want    model.Schedule
 		wantErr bool
 	}{
-		// TODO: Add test cases.
+		{
+			name: "ok",
+			args: args{
+				schedule: schedule,
+				playTime: playTime,
+			},
+			want: want,
+		},
 	}
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
-			if err := addTimeForCodeSetting(tt.args.schedule, tt.args.playTime); (err != nil) != tt.wantErr {
+			got, err := addTimeForCodeSetting(tt.args.schedule, tt.args.playTime)
+			if (err != nil) != tt.wantErr {
 				t.Errorf("addTimeForCodeSetting() error = %v, wantErr %v", err, tt.wantErr)
+				return
+			}
+			if !reflect.DeepEqual(got, tt.want) {
+				t.Errorf("addTimeForCodeSetting() = %v, want %v", got, tt.want)
 			}
 		})
 	}
