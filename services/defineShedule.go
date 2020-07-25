@@ -68,17 +68,13 @@ func searchMatchedBand(
 
 // bandにIsMapped追加
 // eventsにevent追加
-func addEvent(events []model.Event, locationID int, band *model.Band, targetTime time.Time) ([]model.Event, error) {
-	playTime := band.WantPrayTime[locationID]
-
+func addEvent(events []model.Event, playTime int, band *model.Band, targetTime time.Time) ([]model.Event, error) {
 	event := model.Event{
 		Start: targetTime,
 		End:   targetTime.Add(time.Minute * time.Duration(playTime)),
 		Band:  *band,
 	}
 	events = append(events, event)
-
-	band.IsMapped = true
 
 	return events, nil
 }
@@ -124,14 +120,22 @@ func defineSchedule(
 		return errors.New("please rollback")
 	}
 
-	// scheduleにevent追加
-	schedule.Events, err = addEvent(schedule.Events, *&schedule.LocationID, &targetBand, targetTime)
-	if err != nil {
+	playTime := targetBand.WantPrayTime[schedule.LocationID]
 
+	// scheduleにevent追加
+	schedule.Events, err = addEvent(schedule.Events, playTime, &targetBand, targetTime)
+	if err != nil {
+		return err
+	}
+
+	// TODO: 次ここから
+	_, err = targetBand.AddBandIsMapped()
+	if err != nil {
+		return err
 	}
 
 	// コード巻き取り時間を追加
-	addTimeForCodeSetting(*schedule, targetBand, locations)
+	// addTimeForCodeSetting(*schedule, playTime)
 
 	// 対象bandのisMapped追加
 	targetBand.IsMapped = true
