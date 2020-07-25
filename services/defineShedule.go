@@ -79,7 +79,7 @@ func addEvent(events []model.Event, playTime int, band *model.Band, targetTime t
 	return events, nil
 }
 
-func addTimeForCodeSetting(schedule model.Schedule, band model.Band, locations map[int]model.Location) error {
+func addTimeForCodeSetting(schedule model.Schedule, playTime int) error {
 	return nil
 }
 
@@ -123,19 +123,19 @@ func defineSchedule(
 	playTime := targetBand.WantPrayTime[schedule.LocationID]
 
 	// scheduleにevent追加
+	// TODO: ここのテストがgenerateできていない
 	schedule.Events, err = addEvent(schedule.Events, playTime, &targetBand, targetTime)
 	if err != nil {
 		return err
 	}
 
-	// TODO: 次ここから
 	_, err = targetBand.AddBandIsMapped()
 	if err != nil {
 		return err
 	}
 
 	// コード巻き取り時間を追加
-	// addTimeForCodeSetting(*schedule, playTime)
+	addTimeForCodeSetting(*schedule, playTime)
 
 	// 対象bandのisMapped追加
 	targetBand.IsMapped = true

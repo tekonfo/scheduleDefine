@@ -390,3 +390,79 @@ func Test_getUNRegisterdSchedule(t *testing.T) {
 		})
 	}
 }
+
+func Test_addEvent(t *testing.T) {
+	band := model.Band{
+		ID: 1,
+	}
+	playTime := 10
+	targetTime := time.Date(2020, 5, 20, 10, 55, 0, 0, time.UTC)
+	events := []model.Event{}
+
+	want := []model.Event{
+		{
+			Start: time.Date(2020, 5, 20, 10, 55, 0, 0, time.UTC),
+			End:   time.Date(2020, 5, 20, 11, 05, 0, 0, time.UTC),
+			Band: model.Band{
+				ID: 1,
+			},
+		},
+	}
+
+	type args struct {
+		events     []model.Event
+		playTime   int
+		band       *model.Band
+		targetTime time.Time
+	}
+	tests := []struct {
+		name    string
+		args    args
+		want    []model.Event
+		wantErr bool
+	}{
+		{
+			name: "ok",
+			args: args{
+				band:       &band,
+				playTime:   playTime,
+				targetTime: targetTime,
+				events:     events,
+			},
+			want: want,
+		},
+	}
+	for _, tt := range tests {
+		t.Run(tt.name, func(t *testing.T) {
+			got, err := addEvent(tt.args.events, tt.args.playTime, tt.args.band, tt.args.targetTime)
+			if (err != nil) != tt.wantErr {
+				t.Errorf("addEvent() error = %v, wantErr %v", err, tt.wantErr)
+				return
+			}
+			if diff := cmp.Diff(got, tt.want); diff != "" {
+				t.Errorf("addEvent differs: (-got +want)\n%s", diff)
+			}
+		})
+	}
+}
+
+func Test_addTimeForCodeSetting(t *testing.T) {
+	type args struct {
+		schedule model.Schedule
+		playTime int
+	}
+	tests := []struct {
+		name    string
+		args    args
+		wantErr bool
+	}{
+		// TODO: Add test cases.
+	}
+	for _, tt := range tests {
+		t.Run(tt.name, func(t *testing.T) {
+			if err := addTimeForCodeSetting(tt.args.schedule, tt.args.playTime); (err != nil) != tt.wantErr {
+				t.Errorf("addTimeForCodeSetting() error = %v, wantErr %v", err, tt.wantErr)
+			}
+		})
+	}
+}
