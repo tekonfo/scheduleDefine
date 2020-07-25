@@ -48,7 +48,7 @@ func searchMatchedBand(
 		}
 
 		// impossibleBandOrderに含まれていない
-		if currentBandOrder.IsExistBandOrder(band, impossibleBandOrders) {
+		if currentBandOrder.IsExistBandOrder(band.ID, impossibleBandOrders) {
 			continue
 		}
 
@@ -146,7 +146,6 @@ func defineSchedule(
 	playTime := targetBand.WantPrayTime[schedule.LocationID]
 
 	// scheduleにevent追加
-	// TODO: ここのテストがgenerateできていない
 	schedule.Events, err = addEvent(schedule.Events, playTime, &targetBand, targetTime)
 	if err != nil {
 		return err
@@ -158,20 +157,14 @@ func defineSchedule(
 	}
 
 	// コード巻き取り時間を追加
-	addTimeForCodeSetting(*schedule, playTime)
+	// ここで必要ならEventも追加してしまっている
+	*schedule, err = addTimeForCodeSetting(*schedule, playTime)
+	if err != nil {
+		return err
+	}
 
 	// 対象bandのisMapped追加
 	targetBand.IsMapped = true
-
-	// コード巻き取りが必要
-	if isNeedCodeSetting(*schedule, locations) {
-		err = addCodeSetup(&schedule.Events)
-		if err != nil {
-
-		}
-
-		clearTimeForCodeSetup(schedule)
-	}
 
 	return nil
 }

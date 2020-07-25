@@ -1,6 +1,8 @@
 package model
 
-import "reflect"
+import (
+	"reflect"
+)
 
 // ImpossibleBandOrder is 実現不可能なバンドの順番を記録するためのtype
 // ロールバックされる際に追加される
@@ -8,8 +10,21 @@ import "reflect"
 type ImpossibleBandOrder []int
 
 // IsExistBandOrder は現在のBandOrderが不可能順に含まれているのかをチェックする関数
-func (currentBandOrder ImpossibleBandOrder) IsExistBandOrder(band Band, impossibleBandOrder []ImpossibleBandOrder) bool {
-	return true
+func (currentBandOrder ImpossibleBandOrder) IsExistBandOrder(bandID int, impossibleBandOrders []ImpossibleBandOrder) bool {
+
+	tmpBandOrder := append(currentBandOrder, bandID)
+
+	for _, order := range impossibleBandOrders {
+		if len(tmpBandOrder) != len(order) {
+			continue
+		}
+
+		if reflect.DeepEqual(tmpBandOrder, order) {
+			return true
+		}
+	}
+
+	return false
 }
 
 // DeleteBandOrder は現在のBandOrderを一つ削除する
