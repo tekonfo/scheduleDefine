@@ -344,3 +344,45 @@ func Test_getAnotherSchedule(t *testing.T) {
 		})
 	}
 }
+
+func Test_getUNRegisterdSchedule(t *testing.T) {
+	aSchedule := model.Schedule{
+		Day:        time.Date(2020, 5, 20, 0, 0, 0, 0, time.UTC),
+		LocationID: 1,
+		Events: []model.Event{
+			{
+				End: time.Date(2020, 5, 20, 10, 55, 0, 0, time.UTC),
+			},
+		},
+	}
+
+	type args struct {
+		schedule model.Schedule
+	}
+	tests := []struct {
+		name    string
+		args    args
+		want    time.Time
+		wantErr bool
+	}{
+		{
+			name: "true",
+			args: args{
+				schedule: aSchedule,
+			},
+			want: time.Date(2020, 5, 20, 10, 55, 0, 0, time.UTC),
+		},
+	}
+	for _, tt := range tests {
+		t.Run(tt.name, func(t *testing.T) {
+			got, err := getUNRegisterdSchedule(tt.args.schedule)
+			if (err != nil) != tt.wantErr {
+				t.Errorf("getUNRegisterdSchedule() error = %v, wantErr %v", err, tt.wantErr)
+				return
+			}
+			if !reflect.DeepEqual(got, tt.want) {
+				t.Errorf("getUNRegisterdSchedule() = %v, want %v", got, tt.want)
+			}
+		})
+	}
+}

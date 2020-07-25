@@ -18,7 +18,8 @@ func (err *RollbackError) Error() string {
 }
 
 func getUNRegisterdSchedule(schedule model.Schedule) (time.Time, error) {
-	return time.Now(), nil
+	lastEvent := schedule.Events[len(schedule.Events)-1]
+	return lastEvent.End, nil
 }
 
 func searchMatchedBand(
@@ -217,6 +218,7 @@ func DefineSchedules(schedules []model.Schedule, bands []model.Band, members map
 		}
 
 		// scheduleを一件決定
+		// TODO: 次これの実装から
 		err = defineSchedule(&emptySchedule, &anotherSchedule, bands, members, locations, currentBandOrder, impossibleBandOrders)
 		if err != nil {
 			switch e := err.(type) {
