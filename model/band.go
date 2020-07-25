@@ -17,11 +17,10 @@ type Band struct {
 	ImpossibleTimes []ImpossibleTime
 	// 希望出演場所
 	DesireLocationID int
-	BandType         bandType
+	BandType         BandType
 	IsMultiPlay      bool
 	// TODO: これらの情報CSVに追加しないといけない
-	WantCafePlayTime                 int
-	WantStPlayTime                   int
+	WantPrayTime                     map[int]int
 	IsHavingMemberAttendingMainStage bool
 	IsWantPracticeWithMachine        bool
 	IsMapped                         bool
@@ -34,9 +33,9 @@ type ImpossibleTime struct {
 }
 
 // バンドの種類は、本バンド、企画バンド、OBバンドの三種類が存在する
-type bandType struct {
-	id   int
-	name string
+type BandType struct {
+	Id   int
+	Name string
 }
 
 // IsPlay は対象のバンドが既に歌っているのかどうかをチェックする関数
@@ -49,16 +48,20 @@ func (band Band) IsImpossibleTime() bool {
 	return true
 }
 
-func SetBandType(num int) (bandType, error) {
-	var bandTp bandType
+func (band Band) IsMatchLocation(locationID int) bool {
+	return band.DesireLocationID == locationID
+}
+
+func SetBandType(num int) (BandType, error) {
+	var bandTp BandType
 
 	switch num {
 	case MAINBAND:
-		bandTp = bandType{id: 1, name: "本バンド"}
+		bandTp = BandType{1, "本バンド"}
 	case TMPBAND:
-		bandTp = bandType{2, "企画バンド"}
+		bandTp = BandType{2, "企画バンド"}
 	case OBBAND:
-		bandTp = bandType{3, "OBバンド"}
+		bandTp = BandType{3, "OBバンド"}
 	default:
 		return bandTp, errors.New("this num is not registered")
 	}

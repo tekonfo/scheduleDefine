@@ -53,8 +53,10 @@ func TestDefineSchedules(t *testing.T) {
 						// 希望出演場所
 						DesireLocationID: 1,
 						BandType:         bandType,
-						WantCafePlayTime: 10,
-						WantStPlayTime:   5,
+						WantPrayTime: map[int]int{
+							1: 10,
+							2: 5,
+						},
 					},
 				},
 			},
@@ -87,8 +89,10 @@ func TestDefineSchedules(t *testing.T) {
 						// 希望出演場所
 						DesireLocationID: 1,
 						BandType:         bandType,
-						WantCafePlayTime: 10,
-						WantStPlayTime:   5,
+						WantPrayTime: map[int]int{
+							1: 10,
+							2: 5,
+						},
 					},
 				},
 				schedules: schedules,
@@ -383,6 +387,73 @@ func Test_getUNRegisterdSchedule(t *testing.T) {
 			if !reflect.DeepEqual(got, tt.want) {
 				t.Errorf("getUNRegisterdSchedule() = %v, want %v", got, tt.want)
 			}
+		})
+	}
+}
+
+func Test_addEvent(t *testing.T) {
+	band := model.Band{
+		WantPrayTime: map[int]int{
+			1: 10,
+		},
+	}
+
+	band.BandType, _ = model.SetBandType(1)
+
+	targetTime := time.Date(2020, 5, 20, 11, 00, 0, 0, time.UTC)
+
+	wantEvents := []model.Event{
+		{
+			Start: time.Date(2020, 5, 20, 11, 00, 0, 0, time.UTC),
+			End:   time.Date(2020, 5, 20, 11, 10, 0, 0, time.UTC),
+			Band:  band,
+		},
+	}
+
+	type args struct {
+		events     []model.Event
+		locationID int
+		band       *model.Band
+		targetTime time.Time
+	}
+	tests := []struct {
+		name             string
+		args             args
+		wantErr          bool
+		wantBandIsMapped bool
+		wantEvents       []model.Event
+	}{
+		{
+			name: "ok",
+			args: args{
+				events:     []model.Event{},
+				locationID: 1,
+				band:       &band,
+				targetTime: targetTime,
+			},
+			wantBandIsMapped: true,
+			wantEvents:       wantEvents,
+		},
+	}
+	for _, tt := range tests {
+		t.Run(tt.name, func(t *testing.T) {
+			got, err := addEvent(tt.args.events, tt.args.locationID, tt.args.band, tt.args.targetTime)
+			if (err != nil) != tt.wantErr {
+				t.Errorf("addEvent() error = %v, wantErr %v", err, tt.wantErr)
+			}
+
+			if tt.wantErr {
+				return
+			}
+
+			if tt.args.band.IsMapped != tt.wantBandIsMapped {
+				t.Errorf("addEvent() error = %v, wantBandIsMapped %v", tt.args.band.IsMapped, tt.wantBandIsMapped)
+			}
+
+			if diff := cmp.Diff(got, tt.wantEvents); diff != "" {
+				t.Errorf("struct differs: (-got +want)\n%s", diff)
+			}
+
 		})
 	}
 }

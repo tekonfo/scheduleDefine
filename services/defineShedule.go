@@ -24,6 +24,7 @@ func getUNRegisterdSchedule(schedule model.Schedule) (time.Time, error) {
 
 func searchMatchedBand(
 	targetTime time.Time,
+	locationID int,
 	anotherEvents []model.Event,
 	bands []model.Band,
 	members map[int]model.Member,
@@ -34,6 +35,11 @@ func searchMatchedBand(
 	for _, band := range bands {
 		// 一回も歌っていないバンドである
 		if band.IsPlay() {
+			continue
+		}
+
+		// 希望しているLocationIDと今回のLocationがあっているか
+		if !band.IsMatchLocation(locationID) {
 			continue
 		}
 
@@ -60,9 +66,21 @@ func searchMatchedBand(
 	return bands[0], errors.New("could not find band")
 }
 
-func addEvent(events *[]model.Event, band model.Band, targetTime time.Time) error {
-	//
-	return nil
+// bandにIsMapped追加
+// eventsにevent追加
+func addEvent(events []model.Event, locationID int, band *model.Band, targetTime time.Time) ([]model.Event, error) {
+	playTime := band.WantPrayTime[locationID]
+
+	event := model.Event{
+		Start: targetTime,
+		End:   targetTime.Add(time.Minute * time.Duration(playTime)),
+		Band:  *band,
+	}
+	events = append(events, event)
+
+	band.IsMapped = true
+
+	return events, nil
 }
 
 func addTimeForCodeSetting(schedule model.Schedule, band model.Band, locations map[int]model.Location) error {
@@ -100,14 +118,14 @@ func defineSchedule(
 	}
 
 	//  当てはまるバンド検索
-	targetBand, err := searchMatchedBand(targetTime, otherSchedule.Events, bands, members, locations, currentBandOrder, impossibleBandOrders)
+	targetBand, err := searchMatchedBand(targetTime, *&schedule.LocationID, otherSchedule.Events, bands, members, locations, currentBandOrder, impossibleBandOrders)
 	if err != nil {
 		// rollback
 		return errors.New("please rollback")
 	}
 
 	// scheduleにevent追加
-	err = addEvent(&schedule.Events, targetBand, targetTime)
+	schedule.Events, err = addEvent(schedule.Events, *&schedule.LocationID, &targetBand, targetTime)
 	if err != nil {
 
 	}
@@ -218,7 +236,6 @@ func DefineSchedules(schedules []model.Schedule, bands []model.Band, members map
 		}
 
 		// scheduleを一件決定
-		// TODO: 次これの実装から
 		err = defineSchedule(&emptySchedule, &anotherSchedule, bands, members, locations, currentBandOrder, impossibleBandOrders)
 		if err != nil {
 			switch e := err.(type) {
