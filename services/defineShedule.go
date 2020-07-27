@@ -72,11 +72,11 @@ func searchMatchedBand(
 
 // bandにIsMapped追加
 // eventsにevent追加
-func addEvent(events []model.Event, locationID int, playTime int, band *model.Band, targetTime time.Time) ([]model.Event, error) {
+func addEvent(events []model.Event, locationID int, playTime int, band model.Band, targetTime time.Time) ([]model.Event, error) {
 	event := model.Event{
 		Start:      targetTime,
 		End:        targetTime.Add(time.Minute * time.Duration(playTime)),
-		Band:       *band,
+		Band:       band,
 		LocationID: locationID,
 	}
 	events = append(events, event)
@@ -111,67 +111,17 @@ func addTimeForCodeSetting(schedule model.Schedule, playTime int) (model.Schedul
 	return schedule, nil
 }
 
-func clearTimeForCodeSetup(schedule *model.Schedule) error {
+func clearTimeForCodeSetup(schedule model.Schedule) error {
 	schedule.TimeFromBeforeCodeRollUP = 0
 	return nil
 }
 
-func addCodeSetup(evnets *[]model.Event) error {
+func addCodeSetup(evnets []model.Event) error {
 	return nil
 }
 
 func isNeedCodeSetting(schedule model.Schedule, locations map[int]model.Location) bool {
 	return true
-}
-
-// defineScheduleの実行でscheduleが一つ or 一つ + コード巻き取り が埋まる
-func defineSchedule(
-	schedule model.Schedule,
-	otherSchedule model.Schedule,
-	bands []model.Band,
-	members map[int]model.Member,
-	locations map[int]model.Location,
-	currentBandOrder model.ImpossibleBandOrder,
-	impossibleBandOrders []model.ImpossibleBandOrder,
-) error {
-
-	//  未登録のスケジュールを取得
-	targetTime, err := getUNRegisterdSchedule(schedule)
-	if err != nil {
-		return err
-	}
-
-	//  当てはまるバンド検索
-	targetBand, err := searchMatchedBand(targetTime, *&schedule.LocationID, otherSchedule.Events, bands, members, locations, currentBandOrder, impossibleBandOrders)
-	if err != nil {
-		// rollback
-		return errors.New("please rollback")
-	}
-
-	playTime := targetBand.WantPrayTime[schedule.LocationID]
-
-	// scheduleにevent追加
-	schedule.Events, err = addEvent(schedule.Events, schedule.LocationID, playTime, &targetBand, targetTime)
-	if err != nil {
-		return err
-	}
-
-	_, err = targetBand.AddBandIsMapped()
-	if err != nil {
-		return err
-	}
-
-	// コード巻き取り時間を追加
-	// ここで必要ならEventも追加してしまっている
-	schedule, err = addTimeForCodeSetting(schedule, playTime)
-	if err != nil {
-		return err
-	}
-
-	// 対象bandのisMapped追加
-	targetBand.IsMapped = true
-
-	return nil
 }
 
 // 末尾のスケジュールの最後が埋まっているかどうかを確認する
@@ -249,19 +199,25 @@ func DefineSchedules(schedules []model.Schedule, bands []model.Band, members map
 		}
 
 		// 未登録のスケジュールが存在する
-		emptySchedule, err := existEmptySchedule(schedules, locations)
+		targetSchedule, err := existEmptySchedule(schedules, locations)
 		if err != nil {
 			return schedules, errors.New("all shcedules is mapped")
 		}
 
 		// cafeならst, stならcafeのスケジュールを取得
-		anotherSchedule, err := getAnotherSchedule(schedules, emptySchedule)
+		anotherSchedule, err := getAnotherSchedule(schedules, targetSchedule)
 		if err != nil {
 			return schedules, err
 		}
 
-		// scheduleを一件決定
-		err = defineSchedule(emptySchedule, anotherSchedule, bands, members, locations, currentBandOrder, impossibleBandOrders)
+		//  未登録のスケジュールを取得
+		targetTime, err := getUNRegisterdSchedule(targetSchedule)
+		if err != nil {
+			return schedules, err
+		}
+
+		//  当てはまるバンド検索
+		targetBand, err := searchMatchedBand(targetTime, targetSchedule.LocationID, anotherSchedule.Events, bands, members, locations, currentBandOrder, impossibleBandOrders)
 		if err != nil {
 			switch e := err.(type) {
 			case *RollbackError:
@@ -275,5 +231,28 @@ func DefineSchedules(schedules []model.Schedule, bands []model.Band, members map
 				return schedules, e
 			}
 		}
+
+		playTime := targetBand.WantPrayTime[targetSchedule.LocationID]
+
+		// scheduleにevent追加
+		targetSchedule.Events, err = addEvent(targetSchedule.Events, targetSchedule.LocationID, playTime, targetBand, targetTime)
+		if err != nil {
+			return schedules, err
+		}
+
+		_, err = targetBand.AddBandIsMapped()
+		if err != nil {
+			return schedules, err
+		}
+
+		// コード巻き取り時間を追加
+		// ここで必要ならEventも追加してしまっている
+		targetSchedule, err = addTimeForCodeSetting(targetSchedule, playTime)
+		if err != nil {
+			return schedules, err
+		}
+
+		// 対象bandのisMapped追加
+		targetBand.IsMapped = true
 	}
 }

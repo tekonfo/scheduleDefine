@@ -108,7 +108,7 @@ func TestDefineSchedules(t *testing.T) {
 				return
 			}
 			if diff := cmp.Diff(got, tt.want); diff != "" {
-				t.Errorf("Hogefunc differs: (-got +want)\n%s", diff)
+				t.Errorf("DefineSchedules differs: (-got +want)\n%s", diff)
 			}
 		})
 	}
@@ -406,14 +406,16 @@ func Test_addEvent(t *testing.T) {
 			Band: model.Band{
 				ID: 1,
 			},
+			LocationID: 1,
 		},
 	}
 
 	type args struct {
 		events     []model.Event
 		playTime   int
-		band       *model.Band
+		band       model.Band
 		targetTime time.Time
+		locationID int
 	}
 	tests := []struct {
 		name    string
@@ -424,17 +426,18 @@ func Test_addEvent(t *testing.T) {
 		{
 			name: "ok",
 			args: args{
-				band:       &band,
+				band:       band,
 				playTime:   playTime,
 				targetTime: targetTime,
 				events:     events,
+				locationID: 1,
 			},
 			want: want,
 		},
 	}
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
-			got, err := addEvent(tt.args.events, tt.args.playTime, tt.args.band, tt.args.targetTime)
+			got, err := addEvent(tt.args.events, tt.args.locationID, tt.args.playTime, tt.args.band, tt.args.targetTime)
 			if (err != nil) != tt.wantErr {
 				t.Errorf("addEvent() error = %v, wantErr %v", err, tt.wantErr)
 				return
