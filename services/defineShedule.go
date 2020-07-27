@@ -72,15 +72,18 @@ func searchMatchedBand(
 
 // bandにIsMapped追加
 // eventsにevent追加
-func addEvent(events []model.Event, playTime int, band *model.Band, targetTime time.Time) ([]model.Event, error) {
+func addEvent(events []model.Event, locationID int, playTime int, band *model.Band, targetTime time.Time) ([]model.Event, error) {
 	event := model.Event{
-		Start: targetTime,
-		End:   targetTime.Add(time.Minute * time.Duration(playTime)),
-		Band:  *band,
+		Start:      targetTime,
+		End:        targetTime.Add(time.Minute * time.Duration(playTime)),
+		Band:       *band,
+		LocationID: locationID,
 	}
 	events = append(events, event)
 
-	// TODO: それぞれのメンバーにEvent登録処理
+	for _, member := range band.Members {
+		member.Events = append(member.Events, event)
+	}
 
 	return events, nil
 }
@@ -121,10 +124,10 @@ func isNeedCodeSetting(schedule model.Schedule, locations map[int]model.Location
 	return true
 }
 
-// defineSchedule　の実行でscheduleが一つ or 一つ + コード巻き取り が埋まる
+// defineScheduleの実行でscheduleが一つ or 一つ + コード巻き取り が埋まる
 func defineSchedule(
-	schedule *model.Schedule,
-	otherSchedule *model.Schedule,
+	schedule model.Schedule,
+	otherSchedule model.Schedule,
 	bands []model.Band,
 	members map[int]model.Member,
 	locations map[int]model.Location,
@@ -133,7 +136,7 @@ func defineSchedule(
 ) error {
 
 	//  未登録のスケジュールを取得
-	targetTime, err := getUNRegisterdSchedule(*schedule)
+	targetTime, err := getUNRegisterdSchedule(schedule)
 	if err != nil {
 		return err
 	}
@@ -148,7 +151,7 @@ func defineSchedule(
 	playTime := targetBand.WantPrayTime[schedule.LocationID]
 
 	// scheduleにevent追加
-	schedule.Events, err = addEvent(schedule.Events, playTime, &targetBand, targetTime)
+	schedule.Events, err = addEvent(schedule.Events, schedule.LocationID, playTime, &targetBand, targetTime)
 	if err != nil {
 		return err
 	}
@@ -160,7 +163,7 @@ func defineSchedule(
 
 	// コード巻き取り時間を追加
 	// ここで必要ならEventも追加してしまっている
-	*schedule, err = addTimeForCodeSetting(*schedule, playTime)
+	schedule, err = addTimeForCodeSetting(schedule, playTime)
 	if err != nil {
 		return err
 	}
@@ -258,7 +261,7 @@ func DefineSchedules(schedules []model.Schedule, bands []model.Band, members map
 		}
 
 		// scheduleを一件決定
-		err = defineSchedule(&emptySchedule, &anotherSchedule, bands, members, locations, currentBandOrder, impossibleBandOrders)
+		err = defineSchedule(emptySchedule, anotherSchedule, bands, members, locations, currentBandOrder, impossibleBandOrders)
 		if err != nil {
 			switch e := err.(type) {
 			case *RollbackError:
