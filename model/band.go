@@ -34,7 +34,6 @@ type Band struct {
 
 // ImpossibleTime はBandが持つ不可能時間の一つを定義した構造体
 type ImpossibleTime struct {
-	Date  time.Time
 	Start time.Time
 	End   time.Time
 }
@@ -51,8 +50,20 @@ func (band Band) IsPlay() bool {
 }
 
 // IsImpossibleTime は対象の時間がバンドの不可能時間に一致していないのかチェックする関数
-func (band Band) IsImpossibleTime() bool {
-	return true
+func (band Band) IsImpossibleTime(targetStartTime time.Time) bool {
+	playTime := band.WantPrayTime[band.DesireLocationID]
+	targetEndTime := targetStartTime.Add(time.Minute * time.Duration(playTime))
+
+	for _, impossibleTime := range band.ImpossibleTimes {
+		if impossibleTime.Start.Unix() <= targetStartTime.Unix() && targetStartTime.Unix() <= impossibleTime.End.Unix() {
+			return true
+		}
+		if impossibleTime.Start.Unix() <= targetEndTime.Unix() && targetEndTime.Unix() <= impossibleTime.End.Unix() {
+			return true
+		}
+	}
+
+	return false
 }
 
 // IsMatchLocation はバンドの希望している場所と、引数の場所がマッチしているのかを判定する関数

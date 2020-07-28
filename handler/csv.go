@@ -449,7 +449,6 @@ func ImportImpossibleTime(fileName string, bands []model.Band, schedules []model
 		}
 
 		impossibleTime := model.ImpossibleTime{
-			Date:  impossibleTimeStruct.date,
 			Start: impossibleTimeStruct.start,
 			End:   impossibleTimeStruct.end,
 		}

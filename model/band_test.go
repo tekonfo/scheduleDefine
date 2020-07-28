@@ -3,6 +3,7 @@ package model
 import (
 	"reflect"
 	"testing"
+	"time"
 
 	"github.com/google/go-cmp/cmp"
 )
@@ -119,6 +120,111 @@ func TestBand_AddBandIsMapped(t *testing.T) {
 				if diff := cmp.Diff(got, tt.want); diff != "" {
 					t.Errorf("Band.AddBandIsMapped() got differs: (-got +want)\n%s", diff)
 				}
+			}
+		})
+	}
+}
+
+func TestBand_IsImpossibleTime(t *testing.T) {
+	type fields struct {
+		ID                               int
+		Name                             string
+		Email                            string
+		Members                          []Member
+		ImpossibleTimes                  []ImpossibleTime
+		DesireLocationID                 int
+		BandType                         BandType
+		IsMultiPlay                      bool
+		WantPrayTime                     map[int]int
+		IsHavingMemberAttendingMainStage bool
+		IsWantPracticeWithMachine        bool
+		IsMapped                         bool
+	}
+	type args struct {
+		targetStartTime time.Time
+	}
+	tests := []struct {
+		name   string
+		fields fields
+		args   args
+		want   bool
+	}{
+		{
+			name: "true",
+			fields: fields{
+				WantPrayTime: map[int]int{
+					1: 10,
+				},
+				DesireLocationID: 1,
+				ImpossibleTimes: []ImpossibleTime{
+					{
+						Start: time.Date(2020, 5, 20, 10, 0, 0, 0, time.UTC),
+						End:   time.Date(2020, 5, 20, 12, 0, 0, 0, time.UTC),
+					},
+				},
+			},
+			args: args{
+				targetStartTime: time.Date(2020, 5, 20, 12, 0, 0, 0, time.UTC),
+			},
+			want: true,
+		},
+		{
+			name: "true2",
+			fields: fields{
+				WantPrayTime: map[int]int{
+					1: 10,
+				},
+				DesireLocationID: 1,
+				ImpossibleTimes: []ImpossibleTime{
+					{
+						Start: time.Date(2020, 5, 20, 10, 0, 0, 0, time.UTC),
+						End:   time.Date(2020, 5, 20, 12, 0, 0, 0, time.UTC),
+					},
+				},
+			},
+			args: args{
+				targetStartTime: time.Date(2020, 5, 20, 9, 50, 0, 0, time.UTC),
+			},
+			want: true,
+		},
+		{
+			name: "true3",
+			fields: fields{
+				WantPrayTime: map[int]int{
+					1: 10,
+				},
+				DesireLocationID: 1,
+				ImpossibleTimes: []ImpossibleTime{
+					{
+						Start: time.Date(2020, 5, 20, 10, 0, 0, 0, time.UTC),
+						End:   time.Date(2020, 5, 20, 12, 0, 0, 0, time.UTC),
+					},
+				},
+			},
+			args: args{
+				targetStartTime: time.Date(2020, 5, 20, 12, 50, 0, 0, time.UTC),
+			},
+			want: false,
+		},
+	}
+	for _, tt := range tests {
+		t.Run(tt.name, func(t *testing.T) {
+			band := Band{
+				ID:                               tt.fields.ID,
+				Name:                             tt.fields.Name,
+				Email:                            tt.fields.Email,
+				Members:                          tt.fields.Members,
+				ImpossibleTimes:                  tt.fields.ImpossibleTimes,
+				DesireLocationID:                 tt.fields.DesireLocationID,
+				BandType:                         tt.fields.BandType,
+				IsMultiPlay:                      tt.fields.IsMultiPlay,
+				WantPrayTime:                     tt.fields.WantPrayTime,
+				IsHavingMemberAttendingMainStage: tt.fields.IsHavingMemberAttendingMainStage,
+				IsWantPracticeWithMachine:        tt.fields.IsWantPracticeWithMachine,
+				IsMapped:                         tt.fields.IsMapped,
+			}
+			if got := band.IsImpossibleTime(tt.args.targetStartTime); got != tt.want {
+				t.Errorf("Band.IsImpossibleTime() = %v, want %v", got, tt.want)
 			}
 		})
 	}

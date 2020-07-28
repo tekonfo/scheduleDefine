@@ -53,7 +53,7 @@ func searchMatchedBand(
 		}
 
 		// 不可能時間でない
-		if band.IsImpossibleTime() {
+		if band.IsImpossibleTime(targetTime) {
 			continue
 		}
 
@@ -67,7 +67,7 @@ func searchMatchedBand(
 		// 条件達成
 		return band, nil
 	}
-	return bands[0], errors.New("could not find band")
+	return bands[0], &RollbackError{Message: "could not find records"}
 }
 
 // eventsにevent追加
@@ -262,9 +262,6 @@ func DefineSchedules(schedules []model.Schedule, bands []model.Band, members map
 		if err != nil {
 			return schedules, err
 		}
-
-		// 対象bandのisMapped追加
-		targetBand.IsMapped = true
 
 		// targetBandの情報をbandに追加
 		err = updateBand(bands, targetBand)

@@ -523,3 +523,36 @@ func Test_addTimeForCodeSetting(t *testing.T) {
 		})
 	}
 }
+
+func Test_searchMatchedBand(t *testing.T) {
+	type args struct {
+		targetTime           time.Time
+		locationID           int
+		anotherEvents        []model.Event
+		bands                []model.Band
+		members              map[int]model.Member
+		locations            map[int]model.Location
+		currentBandOrder     model.ImpossibleBandOrder
+		impossibleBandOrders []model.ImpossibleBandOrder
+	}
+	tests := []struct {
+		name    string
+		args    args
+		want    model.Band
+		wantErr bool
+	}{
+		// TODO: Add test cases.
+	}
+	for _, tt := range tests {
+		t.Run(tt.name, func(t *testing.T) {
+			got, err := searchMatchedBand(tt.args.targetTime, tt.args.locationID, tt.args.anotherEvents, tt.args.bands, tt.args.members, tt.args.locations, tt.args.currentBandOrder, tt.args.impossibleBandOrders)
+			if (err != nil) != tt.wantErr {
+				t.Errorf("searchMatchedBand() error = %v, wantErr %v", err, tt.wantErr)
+				return
+			}
+			if !reflect.DeepEqual(got, tt.want) {
+				t.Errorf("searchMatchedBand() = %v, want %v", got, tt.want)
+			}
+		})
+	}
+}

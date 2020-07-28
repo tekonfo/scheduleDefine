@@ -369,7 +369,6 @@ func TestImportImpossibleTime(t *testing.T) {
 	wantBands, _ := ImportBand(bandFile, members, locations)
 	wantBands[0].ImpossibleTimes = []model.ImpossibleTime{
 		{
-			Date:  time.Date(2020, 5, 22, 0, 0, 0, 0, time.UTC),
 			Start: time.Date(2020, 5, 22, 10, 0, 0, 0, time.UTC),
 			End:   time.Date(2020, 5, 22, 13, 0, 0, 0, time.UTC),
 		},
