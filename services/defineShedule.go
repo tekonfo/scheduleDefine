@@ -70,22 +70,33 @@ func searchMatchedBand(
 	return bands[0], errors.New("could not find band")
 }
 
-// bandにIsMapped追加
 // eventsにevent追加
-func addEvent(events []model.Event, locationID int, playTime int, band model.Band, targetTime time.Time) ([]model.Event, error) {
+// bandにIsMapped追加
+// bandの各memberにevent追加
+func addEvent(events []model.Event, locationID int, playTime int, band model.Band, targetTime time.Time) ([]model.Event, model.Band, error) {
 	event := model.Event{
 		Start:      targetTime,
 		End:        targetTime.Add(time.Minute * time.Duration(playTime)),
-		Band:       band,
+		BandID:     band.ID,
 		LocationID: locationID,
 	}
 	events = append(events, event)
 
-	for _, member := range band.Members {
-		member.Events = append(member.Events, event)
+	for i := range band.Members {
+		band.Members[i].Events = append(band.Members[i].Events, event)
 	}
 
-	return events, nil
+	return events, band, nil
+}
+
+func updateBand(bands []model.Band, targetBand model.Band) error {
+	for i := range bands {
+		if bands[i].ID == targetBand.ID {
+			bands[i] = targetBand
+			return nil
+		}
+	}
+	return errors.New("no such a band")
 }
 
 func addTimeForCodeSetting(schedule model.Schedule, playTime int) (model.Schedule, error) {
@@ -235,12 +246,12 @@ func DefineSchedules(schedules []model.Schedule, bands []model.Band, members map
 		playTime := targetBand.WantPrayTime[targetSchedule.LocationID]
 
 		// scheduleにevent追加
-		targetSchedule.Events, err = addEvent(targetSchedule.Events, targetSchedule.LocationID, playTime, targetBand, targetTime)
+		targetSchedule.Events, targetBand, err = addEvent(targetSchedule.Events, targetSchedule.LocationID, playTime, targetBand, targetTime)
 		if err != nil {
 			return schedules, err
 		}
 
-		_, err = targetBand.AddBandIsMapped()
+		targetBand, err = targetBand.AddBandIsMapped()
 		if err != nil {
 			return schedules, err
 		}
@@ -254,5 +265,11 @@ func DefineSchedules(schedules []model.Schedule, bands []model.Band, members map
 
 		// 対象bandのisMapped追加
 		targetBand.IsMapped = true
+
+		// targetBandの情報をbandに追加
+		err = updateBand(bands, targetBand)
+		if err != nil {
+			return schedules, err
+		}
 	}
 }

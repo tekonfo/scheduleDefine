@@ -95,6 +95,9 @@ func AddImpossibleTimeFromID(ID int, bands []Band, impossibleTime ImpossibleTime
 
 // AddBandIsMapped は名前が一致しているバンドに対してのマップをtrueにする
 func (band Band) AddBandIsMapped() (Band, error) {
+	if band.IsMapped {
+		return band, errors.New("band is already mapped")
+	}
 	band.IsMapped = true
 	return band, nil
 }

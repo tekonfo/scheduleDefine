@@ -83,6 +83,14 @@ func TestBand_AddBandIsMapped(t *testing.T) {
 			},
 			want: want,
 		},
+		{
+			name: "except",
+			fields: fields{
+				ID:       1,
+				IsMapped: true,
+			},
+			wantErr: true,
+		},
 	}
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {

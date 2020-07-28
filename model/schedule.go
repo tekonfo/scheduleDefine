@@ -17,6 +17,6 @@ type Event struct {
 	Start         time.Time
 	End           time.Time
 	LocationID    int
-	Band          Band
+	BandID        int
 	IsCodeSetting bool
 }

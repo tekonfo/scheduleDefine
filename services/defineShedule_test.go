@@ -42,22 +42,9 @@ func TestDefineSchedules(t *testing.T) {
 			LocationID: 1,
 			Events: []model.Event{
 				{
-					Start: time.Date(2020, 5, 20, 10, 0, 0, 0, time.UTC),
-					End:   time.Date(2020, 5, 20, 10, 5, 0, 0, time.UTC),
-					Band: model.Band{
-						ID:   1,
-						Name: "",
-						Members: []model.Member{
-							sampleMember,
-						},
-						// 希望出演場所
-						DesireLocationID: 1,
-						BandType:         bandType,
-						WantPrayTime: map[int]int{
-							1: 10,
-							2: 5,
-						},
-					},
+					Start:  time.Date(2020, 5, 20, 10, 0, 0, 0, time.UTC),
+					End:    time.Date(2020, 5, 20, 10, 5, 0, 0, time.UTC),
+					BandID: 1,
 				},
 			},
 		},
@@ -392,8 +379,15 @@ func Test_getUNRegisterdSchedule(t *testing.T) {
 }
 
 func Test_addEvent(t *testing.T) {
+	member := model.Member{
+		ID: 1,
+	}
+
 	band := model.Band{
 		ID: 1,
+		Members: []model.Member{
+			member,
+		},
 	}
 	playTime := 10
 	targetTime := time.Date(2020, 5, 20, 10, 55, 0, 0, time.UTC)
@@ -401,12 +395,27 @@ func Test_addEvent(t *testing.T) {
 
 	want := []model.Event{
 		{
-			Start: time.Date(2020, 5, 20, 10, 55, 0, 0, time.UTC),
-			End:   time.Date(2020, 5, 20, 11, 05, 0, 0, time.UTC),
-			Band: model.Band{
-				ID: 1,
-			},
+			Start:      time.Date(2020, 5, 20, 10, 55, 0, 0, time.UTC),
+			End:        time.Date(2020, 5, 20, 11, 05, 0, 0, time.UTC),
+			BandID:     1,
 			LocationID: 1,
+		},
+	}
+
+	wantBand := model.Band{
+		ID: 1,
+		Members: []model.Member{
+			{
+				ID: 1,
+				Events: []model.Event{
+					{
+						Start:      time.Date(2020, 5, 20, 10, 55, 0, 0, time.UTC),
+						End:        time.Date(2020, 5, 20, 11, 05, 0, 0, time.UTC),
+						BandID:     1,
+						LocationID: 1,
+					},
+				},
+			},
 		},
 	}
 
@@ -418,10 +427,11 @@ func Test_addEvent(t *testing.T) {
 		locationID int
 	}
 	tests := []struct {
-		name    string
-		args    args
-		want    []model.Event
-		wantErr bool
+		name     string
+		args     args
+		want     []model.Event
+		wantBand model.Band
+		wantErr  bool
 	}{
 		{
 			name: "ok",
@@ -432,18 +442,22 @@ func Test_addEvent(t *testing.T) {
 				events:     events,
 				locationID: 1,
 			},
-			want: want,
+			want:     want,
+			wantBand: wantBand,
 		},
 	}
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
-			got, err := addEvent(tt.args.events, tt.args.locationID, tt.args.playTime, tt.args.band, tt.args.targetTime)
+			got, gotBand, err := addEvent(tt.args.events, tt.args.locationID, tt.args.playTime, tt.args.band, tt.args.targetTime)
 			if (err != nil) != tt.wantErr {
 				t.Errorf("addEvent() error = %v, wantErr %v", err, tt.wantErr)
 				return
 			}
 			if diff := cmp.Diff(got, tt.want); diff != "" {
 				t.Errorf("addEvent differs: (-got +want)\n%s", diff)
+			}
+			if diff := cmp.Diff(gotBand, tt.wantBand); diff != "" {
+				t.Errorf("addEvent gotBand differs: (-got +want)\n%s", diff)
 			}
 		})
 	}
