@@ -3,6 +3,8 @@ package model
 import (
 	"reflect"
 	"testing"
+
+	"github.com/google/go-cmp/cmp"
 )
 
 func Test_setBandType(t *testing.T) {
@@ -113,8 +115,10 @@ func TestBand_AddBandIsMapped(t *testing.T) {
 				t.Errorf("Band.AddBandIsMapped() error = %v, wantErr %v", err, tt.wantErr)
 				return
 			}
-			if !reflect.DeepEqual(got, tt.want) {
-				t.Errorf("Band.AddBandIsMapped() = %v, want %v", got, tt.want)
+			if !tt.wantErr {
+				if diff := cmp.Diff(got, tt.want); diff != "" {
+					t.Errorf("Band.AddBandIsMapped() got differs: (-got +want)\n%s", diff)
+				}
 			}
 		})
 	}
