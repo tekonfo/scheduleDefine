@@ -5,31 +5,6 @@ import (
 	"time"
 )
 
-func TestMember_CheckDoubleCheck(t *testing.T) {
-	type fields struct {
-		name    string
-		bandIDs []int
-	}
-	tests := []struct {
-		name   string
-		fields fields
-		want   bool
-	}{
-		// TODO: Add test cases.
-	}
-	for _, tt := range tests {
-		t.Run(tt.name, func(t *testing.T) {
-			member := Member{
-				Name:    tt.fields.name,
-				BandIDs: tt.fields.bandIDs,
-			}
-			if got := member.CheckDoubleCheck(); got != tt.want {
-				t.Errorf("Member.CheckDoubleCheck() = %v, want %v", got, tt.want)
-			}
-		})
-	}
-}
-
 func TestCheckValidMembers(t *testing.T) {
 	memberA := Member{
 		ID:   1,

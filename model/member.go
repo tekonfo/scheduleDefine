@@ -15,12 +15,6 @@ type Member struct {
 	Events  []Event
 }
 
-// CheckDoubleCheck はあるメンバーが同時に出演していないかをチェックする関数
-func (member Member) CheckDoubleCheck() bool {
-
-	return true
-}
-
 // IsViolateTimeRule はメンバーが引数の時間に他の場所の関係による制約に引っかかっていないのかをチェックする関数
 func (member Member) IsViolateTimeRule(startTime time.Time, endTime time.Time) bool {
 	for _, event := range member.Events {
