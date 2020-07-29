@@ -239,7 +239,10 @@ func DefineSchedules(schedules []model.Schedule, bands []model.Band, members map
 				if err != nil {
 					return schedules, err
 				}
-				currentBandOrder.AddImpossibleBandOrders(impossibleBandOrders)
+				impossibleBandOrders, err = currentBandOrder.AddImpossibleBandOrders(impossibleBandOrders)
+				if err != nil {
+					return schedules, err
+				}
 				continue
 			default:
 				return schedules, e
