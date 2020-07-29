@@ -57,9 +57,12 @@ func searchMatchedBand(
 			continue
 		}
 
+		playTime := band.WantPrayTime[band.DesireLocationID]
+		targetEndTime := targetTime.Add(time.Minute * time.Duration(playTime))
+
 		for _, member := range band.Members {
 			// 時間の制約チェック
-			if member.IsViolateTimeRule(targetTime) {
+			if member.IsViolateTimeRule(targetTime, targetEndTime) {
 				continue
 			}
 		}

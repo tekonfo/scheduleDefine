@@ -7,8 +7,8 @@ import (
 
 func TestMember_CheckDoubleCheck(t *testing.T) {
 	type fields struct {
-		name  string
-		bands []Band
+		name    string
+		bandIDs []int
 	}
 	tests := []struct {
 		name   string
@@ -20,8 +20,8 @@ func TestMember_CheckDoubleCheck(t *testing.T) {
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
 			member := Member{
-				Name:  tt.fields.name,
-				Bands: tt.fields.bands,
+				Name:    tt.fields.name,
+				BandIDs: tt.fields.bandIDs,
 			}
 			if got := member.CheckDoubleCheck(); got != tt.want {
 				t.Errorf("Member.CheckDoubleCheck() = %v, want %v", got, tt.want)
@@ -89,13 +89,14 @@ func TestCheckValidMembers(t *testing.T) {
 
 func TestMember_IsViolateTimeRule(t *testing.T) {
 	type fields struct {
-		ID     int
-		Name   string
-		Bands  []Band
-		Events []Event
+		ID      int
+		Name    string
+		BandIDs []int
+		Events  []Event
 	}
 	type args struct {
-		targetTime time.Time
+		startTime time.Time
+		endTime   time.Time
 	}
 	tests := []struct {
 		name   string
@@ -104,7 +105,7 @@ func TestMember_IsViolateTimeRule(t *testing.T) {
 		want   bool
 	}{
 		{
-			name: "true",
+			name: "true: violate starttime",
 			fields: fields{
 				Events: []Event{
 					{
@@ -114,7 +115,24 @@ func TestMember_IsViolateTimeRule(t *testing.T) {
 				},
 			},
 			args: args{
-				targetTime: time.Date(2020, 5, 20, 11, 04, 0, 0, time.UTC),
+				startTime: time.Date(2020, 5, 20, 11, 04, 0, 0, time.UTC),
+				endTime:   time.Date(2020, 5, 20, 11, 14, 0, 0, time.UTC),
+			},
+			want: true,
+		},
+		{
+			name: "true: violate movetime",
+			fields: fields{
+				Events: []Event{
+					{
+						Start: time.Date(2020, 5, 20, 10, 55, 0, 0, time.UTC),
+						End:   time.Date(2020, 5, 20, 11, 05, 0, 0, time.UTC),
+					},
+				},
+			},
+			args: args{
+				startTime: time.Date(2020, 5, 20, 11, 15, 0, 0, time.UTC),
+				endTime:   time.Date(2020, 5, 20, 11, 25, 0, 0, time.UTC),
 			},
 			want: true,
 		},
@@ -129,7 +147,8 @@ func TestMember_IsViolateTimeRule(t *testing.T) {
 				},
 			},
 			args: args{
-				targetTime: time.Date(2020, 5, 20, 11, 20, 0, 0, time.UTC),
+				startTime: time.Date(2020, 5, 20, 11, 20, 0, 0, time.UTC),
+				endTime:   time.Date(2020, 5, 20, 11, 30, 0, 0, time.UTC),
 			},
 			want: false,
 		},
@@ -137,12 +156,12 @@ func TestMember_IsViolateTimeRule(t *testing.T) {
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
 			member := Member{
-				ID:     tt.fields.ID,
-				Name:   tt.fields.Name,
-				Bands:  tt.fields.Bands,
-				Events: tt.fields.Events,
+				ID:      tt.fields.ID,
+				Name:    tt.fields.Name,
+				BandIDs: tt.fields.BandIDs,
+				Events:  tt.fields.Events,
 			}
-			if got := member.IsViolateTimeRule(tt.args.targetTime); got != tt.want {
+			if got := member.IsViolateTimeRule(tt.args.startTime, tt.args.endTime); got != tt.want {
 				t.Errorf("Member.IsViolateTimeRule() = %v, want %v", got, tt.want)
 			}
 		})

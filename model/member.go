@@ -1,7 +1,6 @@
 package model
 
 import (
-	"fmt"
 	"time"
 )
 
@@ -10,10 +9,10 @@ const MOVETIME = 10
 
 // Member は名前と所属しているバンドを持っている構造体
 type Member struct {
-	ID     int
-	Name   string
-	Bands  []Band
-	Events []Event
+	ID      int
+	Name    string
+	BandIDs []int
+	Events  []Event
 }
 
 // CheckDoubleCheck はあるメンバーが同時に出演していないかをチェックする関数
@@ -23,19 +22,21 @@ func (member Member) CheckDoubleCheck() bool {
 }
 
 // IsViolateTimeRule はメンバーが引数の時間に他の場所の関係による制約に引っかかっていないのかをチェックする関数
-func (member Member) IsViolateTimeRule(targetTime time.Time) bool {
+func (member Member) IsViolateTimeRule(startTime time.Time, endTime time.Time) bool {
 	for _, event := range member.Events {
 		// 同時刻にバンドメンバーが別の場所で歌っている
-		if event.Start.Unix() <= targetTime.Unix() && targetTime.Unix() <= event.End.Unix() {
+		if event.Start.Unix() <= startTime.Unix() && startTime.Unix() <= event.End.Unix() {
+			return true
+		}
+
+		if event.Start.Unix() <= endTime.Unix() && endTime.Unix() <= event.End.Unix() {
 			return true
 		}
 
 		// 移動時間の制約に引っかからない
 		// MOVETIMEを加算したEventの終了時刻
-		beforeTarget := event.End.Add(time.Minute * time.Duration(MOVETIME))
-		hour := beforeTarget.Minute()
-		fmt.Println(hour)
-		if targetTime.Unix() < beforeTarget.Unix() {
+		nextPossibleTime := event.End.Add(time.Minute * time.Duration(MOVETIME))
+		if startTime.Unix() <= nextPossibleTime.Unix() && nextPossibleTime.Unix() <= endTime.Unix() {
 			return true
 		}
 	}
